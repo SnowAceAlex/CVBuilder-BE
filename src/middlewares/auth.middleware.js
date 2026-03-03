@@ -1,4 +1,4 @@
-const { requireAuth, getAuth } = require("@clerk/express");
+import { requireAuth, getAuth } from '@clerk/express';
 
 // Use this on any route you want to protect
 const protect = requireAuth();
@@ -6,4 +6,4 @@ const protect = requireAuth();
 // Helper to get the current user's Clerk ID inside a controller
 const getCurrentUserId = (req) => getAuth(req).userId;
 
-module.exports = { protect, getCurrentUserId };
+export { protect, getCurrentUserId };

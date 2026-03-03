@@ -1,6 +1,7 @@
-const express = require("express");
+import express from 'express';
+import { protect } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const { protect } = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
@@ -13,8 +14,8 @@ const { protect } = require("../middlewares/auth.middleware");
  *       200:
  *         description: Current user data
  */
-router.get("/me", protect, async (req, res) => {
-  res.json({ success: true, message: "Auth is working" });
+router.get('/me', protect, async (req, res) => {
+  res.json({ success: true, message: 'Auth is working' });
 });
 
-module.exports = router;
+export default router;

@@ -1,6 +1,7 @@
 {
   "name": "CVBuilder-BE",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -27,7 +28,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "eslint": "^10.0.2",
+    "globals": "^15.14.0",
     "eslint-config-prettier": "^10.1.8",
     "jest": "^30.2.0",
     "nodemon": "^3.1.14",

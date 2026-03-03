@@ -1,19 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
-const swaggerUi = require('swagger-ui-express');
-const { clerkMiddleware } = require('@clerk/express');
-const swaggerSpec = require('../swagger');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
+import { clerkMiddleware } from '@clerk/express';
+import swaggerSpec from '../swagger.js';
+import webhookRoutes from './routes/webhook.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import cvRoutes from './routes/cv.routes.js';
 
 const app = express();
 
 app.set('trust proxy', 1);
 
 // Webhook route MUST come before express.json() — needs raw body
-app.use('/api/webhooks', require('./routes/webhook.routes'));
+app.use('/api/webhooks', webhookRoutes);
 
 // Security & parsing
 app.use(helmet());
@@ -30,8 +33,8 @@ app.use(clerkMiddleware());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/cv', require('./routes/cv.routes'));
+app.use('/api/auth', authRoutes);
+app.use('/api/cv', cvRoutes);
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'CVBuilder API is running' }));
@@ -44,4 +47,4 @@ app.use((err, req, res, next) => {
     .json({ success: false, message: err.message || 'Server Error' });
 });
 
-module.exports = app;
+export default app;

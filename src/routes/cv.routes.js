@@ -1,6 +1,7 @@
-const express = require("express");
+import express from 'express';
+import { protect } from '../middlewares/auth.middleware.js';
+
 const router = express.Router();
-const { protect } = require("../middlewares/auth.middleware");
 
 /**
  * @swagger
@@ -13,8 +14,8 @@ const { protect } = require("../middlewares/auth.middleware");
  *       200:
  *         description: List of CVs
  */
-router.get("/", protect, async (req, res) => {
-  res.json({ success: true, message: "CV routes working" });
+router.get('/', protect, async (req, res) => {
+  res.json({ success: true, message: 'CV routes working' });
 });
 
-module.exports = router;
+export default router;

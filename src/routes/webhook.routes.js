@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { Webhook } from 'svix';
+import User from '../models/user.model.js';
+
 const router = express.Router();
-const { Webhook } = require('svix');
-const User = require('../models/user.model');
 
 router.post(
   '/',
@@ -47,4 +48,4 @@ router.post(
   },
 );
 
-module.exports = router;
+export default router;
