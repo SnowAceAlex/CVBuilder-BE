@@ -34,7 +34,7 @@ app.use('/api/cv', cvRoutes);
 app.get('/', (req, res) => res.json({ status: 'CVBuilder API is running' }));
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   const status = err.status || 500;
   res
     .status(status)
