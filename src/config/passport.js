@@ -1,5 +1,5 @@
 import passport from 'passport';
-import User from '../models/user.model.js';
+// import User from '../models/user.model.js';
 
 // TODO: In the future, implement Google and GitHub OAuth strategies here.
 // Example:
