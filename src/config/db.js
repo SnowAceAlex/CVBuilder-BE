@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Fix for Node.js MongoDB SRV resolution issues (ECONNREFUSED) on some network setups
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const connectDB = async () => {
   try {
