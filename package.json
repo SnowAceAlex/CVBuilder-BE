@@ -9,7 +9,8 @@
     "dev": "nodemon server.js",
     "test": "jest --watchAll",
     "lint": "eslint src/",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "sync-db": "node src/scripts/syncModels.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
