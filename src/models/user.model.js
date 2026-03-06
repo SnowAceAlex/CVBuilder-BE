@@ -4,7 +4,13 @@ import bcrypt from 'bcrypt';
 const userSchema = new mongoose.Schema(
   {
     // Auth fields
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     password: { type: String }, // Not required for OAuth users
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
