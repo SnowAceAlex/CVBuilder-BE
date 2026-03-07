@@ -1,4 +1,6 @@
+import jwt from 'jsonwebtoken';
 import express from 'express';
+import passport from 'passport';
 import { protect } from '../middlewares/auth.middleware.js';
 import {
   register,
@@ -106,10 +108,29 @@ router.get('/me', protect, async (req, res) => {
 });
 
 // OAuth Placeholders
+//OAuth google
 // router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 // router.get('/google/callback', passport.authenticate('google', { session: false }), (req, res) => { ... });
 
-// router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
-// router.get('/github/callback', passport.authenticate('github', { session: false }), (req, res) => { ... });
+//OAuth github
+router.get(
+  '/github',
+  passport.authenticate('github', { scope: ['user:email'] }),
+);
+router.get(
+  '/github/callback',
+  passport.authenticate('github', { session: false }),
+  (req, res) => {
+    // Tạo Access Token bằng JWT
+    const token = jwt.sign(
+      { id: req.user.id }, // Sửa thành req.user._id nếu dùng MongoDB thực tế
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: '1d' },
+    );
+
+    // Chuyển hướng người dùng về lại Frontend React, kẹp token lên thanh địa chỉ
+    res.redirect(`${process.env.CLIENT_URL}/login-success?token=${token}`);
+  },
+);
 
 export default router;
