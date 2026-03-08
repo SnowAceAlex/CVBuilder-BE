@@ -34,9 +34,8 @@ passport.use(
         if (!user) {
           user = await User.create({
             githubId: profile.id,
-            name: profile.displayName || profile.username,
+            firstName: profile.displayName || profile.username,
             email: email,
-            avatar: profile.photos[0].value,
           });
         }
         // 4. Trả user về cho các bước tiếp theo của Passport
