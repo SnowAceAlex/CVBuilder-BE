@@ -139,7 +139,7 @@ router.get('/me', protect, async (req, res) => {
  *       200:
  *         description: Return user information
  *       302:
- *         description: Redirect to Frontend 
+ *         description: Redirect to Frontend
  */
 
 //OAuth github
