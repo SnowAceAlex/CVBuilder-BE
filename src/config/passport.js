@@ -70,6 +70,12 @@ passport.use(
         // 3. nếu chưa có thì check email (account linking)
         if (!user && email) {
           user = await User.findOne({ email });
+
+          // account linking
+          if (user && !user.googleId) {
+            user.googleId = profile.id;
+            await user.save();
+          }
         }
 
         // 4. nếu chưa có nữa thì tạo user mới
@@ -78,7 +84,7 @@ passport.use(
             googleId: profile.id,
             firstName: profile.displayName,
             email: email,
-            avatar: profile.photos?.[0]?.value,
+            // avatar: profile.photos?.[0]?.value,
           });
         }
 
