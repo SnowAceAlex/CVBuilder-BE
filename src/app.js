@@ -24,6 +24,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Passport
+app.use(passport.initialize());
+
 // Swagger docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -33,9 +36,6 @@ app.use('/api/cv', cvRoutes);
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'CVBuilder API is running' }));
-
-//Passport
-app.use(passport.initialize());
 
 // Global error handler
 app.use((err, req, res, _next) => {

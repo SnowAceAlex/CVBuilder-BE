@@ -7,6 +7,7 @@ import {
   login,
   refresh,
   logout,
+  googleCallback,
 } from '../controllers/auth.controller.js';
 
 const router = express.Router();
@@ -108,9 +109,48 @@ router.get('/me', protect, async (req, res) => {
 });
 
 // OAuth Placeholders
+/**
+ * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Initiate Google OAuth login
+ *     tags: [Auth]
+ *     description: Redirects the user to Google for authentication.
+ *     responses:
+ *       302:
+ *         description: Redirects to Google OAuth consent screen
+ */
 //OAuth google
-// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-// router.get('/google/callback', passport.authenticate('google', { session: false }), (req, res) => { ... });
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+    prompt: 'select_account',
+  }),
+);
+
+/**
+ * @swagger
+ * /api/auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback
+ *     tags: [Auth]
+ *     description: |
+ *       Handles the callback from Google after user authentication.
+ *       On success, redirects to the frontend with a JWT access token in the `token` query parameter.
+ *     responses:
+ *       302:
+ *         description: Redirects to frontend with JWT access token
+ */
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=google_failed`,
+  }),
+  googleCallback,
+);
 
 //OAuth github
 router.get(

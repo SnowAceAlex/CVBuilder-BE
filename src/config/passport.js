@@ -5,6 +5,7 @@ import User from '../models/user.model.js';
 // Example:
 // import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as GitHubStrategy } from 'passport-github2';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
 // passport.use(new GoogleStrategy({ ... }, async (accessToken, refreshToken, profile, done) => { ... }));
 
@@ -46,6 +47,50 @@ passport.use(
       }
     },
   ),
+);
+
+//Google
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+      scope: ['profile', 'email'],
+      passReqToCallback: true
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // 1. lấy email
+        const email =
+          profile.emails && profile.emails.length > 0
+            ? profile.emails[0].value
+            : null;
+
+        // 2. tìm user theo googleId
+        let user = await User.findOne({ googleId: profile.id });
+
+        // 3. nếu chưa có thì check email (account linking)
+        if (!user && email) {
+          user = await User.findOne({ email });
+        }
+
+        // 4. nếu chưa có nữa thì tạo user mới
+        if (!user) {
+          user = await User.create({
+            googleId: profile.id,
+            name: profile.displayName,
+            email: email,
+            avatar: profile.photos?.[0]?.value,
+          });
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error, null);
+      }
+    }
+  )
 );
 
 export default passport;
