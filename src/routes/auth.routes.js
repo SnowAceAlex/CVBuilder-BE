@@ -161,6 +161,7 @@ router.get(
  *     responses:
  *       302:
  *         description: Redirect user to github o-auth page
+ */
 
 /**
  * @swagger
