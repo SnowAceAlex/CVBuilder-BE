@@ -121,6 +121,7 @@ router.get('/me', protect, async (req, res) => {
  *     responses:
  *       302:
  *         description: Redirect user to github o-auth page
+ */
 
 /**
  * @swagger
