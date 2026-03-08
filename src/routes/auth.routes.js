@@ -152,6 +152,35 @@ router.get(
   googleCallback,
 );
 
+/**
+ * @swagger
+ * /api/auth/github:
+ *   get:
+ *     summary: Start github login
+ *     tags: [Auth]
+ *     responses:
+ *       302:
+ *         description: Redirect user to github o-auth page
+
+/**
+ * @swagger
+ * /api/auth/github/callback:
+ *   get:
+ *     summary: callback process after gitHub oauth
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Return user information
+ *       302:
+ *         description: Redirect to Frontend 
+ */
+
 //OAuth github
 router.get(
   '/github',
