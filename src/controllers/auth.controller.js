@@ -158,3 +158,42 @@ export const logout = async (req, res, _next) => {
 
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
+
+// @desc    OAuth callback for Google
+// @route   GET /api/auth/google/callback
+// @access  Public (redirect from Google)
+export const googleCallback = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.CLIENT_URL}/login?error=google_no_user`,
+      );
+    }
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    return res.redirect(`${process.env.CLIENT_URL}/login-success`);
+  } catch (error) {
+    return next(error);
+  }
+};
