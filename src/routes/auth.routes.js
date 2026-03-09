@@ -1,7 +1,10 @@
-import jwt from 'jsonwebtoken';
 import express from 'express';
 import passport from 'passport';
 import { protect } from '../middlewares/auth.middleware.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from '../utils/token.util.js';
 import {
   register,
   login,
@@ -150,16 +153,30 @@ router.get(
 router.get(
   '/github/callback',
   passport.authenticate('github', { session: false }),
-  (req, res) => {
-    // Tạo Access Token bằng JWT
-    const token = jwt.sign(
-      { id: req.user.id }, // Sửa thành req.user._id nếu dùng MongoDB thực tế
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: '1d' },
-    );
+  async (req, res, next) => {
+    try {
+      const userId = req.user?._id ?? req.user?.id;
 
-    // Chuyển hướng người dùng về lại Frontend React, kẹp token lên thanh địa chỉ
-    res.redirect(`${process.env.CLIENT_URL}/login-success?token=${token}`);
+      const accessToken = generateAccessToken(userId);
+      const refreshToken = generateRefreshToken(userId);
+
+      req.user.refreshToken = refreshToken;
+      await req.user.save();
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      // Chuyển hướng người dùng về lại Frontend React, kẹp accessToken lên thanh địa chỉ
+      res.redirect(
+        `${process.env.CLIENT_URL}/login-success?token=${accessToken}`,
+      );
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
