@@ -159,6 +159,36 @@ export const logout = async (req, res, _next) => {
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
+// @desc    OAuth callback for GitHub
+// @route   GET /api/auth/github/callback
+// @access  Public (redirect from GitHub)
+export const githubCallback = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const userId = user?._id ?? user?.id;
+
+    const accessToken = generateAccessToken(userId);
+    const refreshToken = generateRefreshToken(userId);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.redirect(
+      `${process.env.CLIENT_URL}/login-success?token=${accessToken}`,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    OAuth callback for Google
 // @route   GET /api/auth/google/callback
 // @access  Public (redirect from Google)
