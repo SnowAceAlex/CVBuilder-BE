@@ -2,15 +2,12 @@ import express from 'express';
 import passport from 'passport';
 import { protect } from '../middlewares/auth.middleware.js';
 import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../utils/token.util.js';
-import {
   register,
   login,
   refresh,
   logout,
   googleCallback,
+  githubCallback,
 } from '../controllers/auth.controller.js';
 
 const router = express.Router();
@@ -165,6 +162,14 @@ router.get(
  *       302:
  *         description: Redirect user to github o-auth page
  */
+//OAuth github
+router.get(
+  '/github',
+  passport.authenticate('github', {
+    scope: ['user:email'],
+    session: false,
+  }),
+);
 
 /**
  * @swagger
@@ -185,39 +190,13 @@ router.get(
  *         description: Redirect to Frontend
  */
 
-//OAuth github
-router.get(
-  '/github',
-  passport.authenticate('github', { scope: ['user:email'] }),
-);
 router.get(
   '/github/callback',
-  passport.authenticate('github', { session: false }),
-  async (req, res, next) => {
-    try {
-      const userId = req.user?._id ?? req.user?.id;
-
-      const accessToken = generateAccessToken(userId);
-      const refreshToken = generateRefreshToken(userId);
-
-      req.user.refreshToken = refreshToken;
-      await req.user.save();
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-
-      // Chuyển hướng người dùng về lại Frontend React, kẹp accessToken lên thanh địa chỉ
-      res.redirect(
-        `${process.env.CLIENT_URL}/login-success?token=${accessToken}`,
-      );
-    } catch (error) {
-      next(error);
-    }
-  },
+  passport.authenticate('github', {
+    session: false,
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=github_failed`,
+  }),
+  githubCallback,
 );
 
 export default router;
