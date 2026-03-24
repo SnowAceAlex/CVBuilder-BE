@@ -26,7 +26,95 @@ The main feature of your app is building CVs. This task involves creating the co
 
 ---
 
-## 🚀 Task 2: AI Enhancer & Generation Service
+## 🚀 Task 2: CV Sub-Resource CRUD (Section Endpoints)
+
+**Priority:** 🔥 High (Depends on Task 1)
+**Suggested Deadline:** 1 Week
+**Estimated Effort:** 3-5 days
+
+**Description:**
+Task 1 đã tạo CV cơ bản (chỉ có `cvTitle`, `templateId`, `personalInfo`). Các mảng `educations`, `experiences`, `skills`, `projects`, `certifications` đang trống khi tạo CV. Task này implement các endpoint riêng để **thêm/sửa/xóa từng entry** trong mỗi section, thay vì gửi toàn bộ CV data trong 1 PUT request.
+
+**Flow hoạt động:**
+1. User tạo CV bằng `POST /api/cv` (chỉ có title + personal info)
+2. User thêm từng education/experience/skill/... bằng các endpoint bên dưới
+3. Frontend gọi API cho từng thao tác → không mất dữ liệu, dễ tích hợp
+
+**Action Items:**
+
+### Personal Info
+- Implement `PUT /api/cv/:id/personal-info` — Cập nhật thông tin cá nhân (fullName, email, phone, address, jobTitle, summary)
+
+### Educations (CRUD từng entry)
+- Implement `POST /api/cv/:id/educations` — Thêm 1 education entry vào mảng `educations`
+- Implement `PUT /api/cv/:id/educations/:eduId` — Sửa 1 education entry theo `_id`
+- Implement `DELETE /api/cv/:id/educations/:eduId` — Xóa 1 education entry theo `_id`
+
+### Experiences (CRUD từng entry)
+- Implement `POST /api/cv/:id/experiences` — Thêm 1 experience entry
+- Implement `PUT /api/cv/:id/experiences/:expId` — Sửa 1 experience entry
+- Implement `DELETE /api/cv/:id/experiences/:expId` — Xóa 1 experience entry
+
+### Skills (CRUD từng entry)
+- Implement `POST /api/cv/:id/skills` — Thêm 1 skill entry
+- Implement `PUT /api/cv/:id/skills/:skillId` — Sửa 1 skill entry
+- Implement `DELETE /api/cv/:id/skills/:skillId` — Xóa 1 skill entry
+
+### Projects (CRUD từng entry)
+- Implement `POST /api/cv/:id/projects` — Thêm 1 project entry
+- Implement `PUT /api/cv/:id/projects/:projectId` — Sửa 1 project entry
+- Implement `DELETE /api/cv/:id/projects/:projectId` — Xóa 1 project entry
+
+### Certifications (CRUD từng entry)
+- Implement `POST /api/cv/:id/certifications` — Thêm 1 certification entry
+- Implement `PUT /api/cv/:id/certifications/:certId` — Sửa 1 certification entry
+- Implement `DELETE /api/cv/:id/certifications/:certId` — Xóa 1 certification entry
+
+### Sections (Thứ tự hiển thị)
+- Implement `PUT /api/cv/:id/sections` — Cập nhật thứ tự sections (cho drag-and-drop trên frontend)
+
+**Hướng dẫn implement:**
+
+1. **Tất cả endpoint đều cần `protect` middleware** (đã có sẵn ở `auth.middleware.js`)
+2. **Ownership guard**: Luôn check `cv.userId === req.user._id` trước khi thao tác. Xem ví dụ ở `getCVById` trong `cv.controller.js`
+3. **Pattern chung cho POST (thêm entry):**
+   ```js
+   // Tìm CV → check ownership → push entry vào mảng → save
+   const cv = await CV.findById(req.params.id);
+   if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+     return res.status(404).json({ success: false, message: 'CV not found' });
+   }
+   cv.educations.push(req.body);
+   await cv.save();
+   ```
+4. **Pattern chung cho PUT (sửa entry):**
+   ```js
+   // Tìm CV → check ownership → tìm sub-document bằng .id() → update fields → save
+   const education = cv.educations.id(req.params.eduId);
+   if (!education) return res.status(404).json(...);
+   Object.assign(education, req.body);
+   await cv.save();
+   ```
+5. **Pattern chung cho DELETE (xóa entry):**
+   ```js
+   // Tìm CV → check ownership → pull entry ra khỏi mảng → save
+   cv.educations.pull(req.params.eduId);
+   await cv.save();
+   ```
+6. **Validation**: Dùng Zod (đã setup sẵn ở `validations/cv.validation.js`). Tạo schema riêng cho từng sub-resource
+7. **Swagger docs**: Thêm JSDoc annotation cho mỗi route (xem ví dụ ở `cv.routes.js`)
+
+**Acceptance Criteria:**
+
+- [ ] User có thể thêm/sửa/xóa từng education, experience, skill, project, certification
+- [ ] User chỉ thao tác được trên CV của chính mình
+- [ ] Dữ liệu được validate bằng Zod trước khi lưu
+- [ ] Swagger API documentation được cập nhật cho tất cả endpoints mới
+- [ ] Sections ordering hoạt động cho drag-and-drop
+
+---
+
+## 🚀 Task 3: AI Enhancer & Generation Service
 
 **Priority:** ⭐ High (Key Selling Point)
 **Suggested Deadline:** 1.5 Weeks
@@ -50,7 +138,7 @@ Since you have an `aiLog.model.js`, your app clearly relies on AI. This member s
 
 ---
 
-## 🚀 Task 3: Template Management & Default Seeders
+## 🚀 Task 4: Template Management & Default Seeders
 
 **Priority:** 🟡 Medium
 **Suggested Deadline:** 3-4 Days
@@ -72,7 +160,7 @@ Users need templates to build their CVs. This task involves managing these templ
 
 ---
 
-## 🚀 Task 4: User Profile & Account Settings
+## 🚀 Task 5: User Profile & Account Settings
 
 **Priority:** 🟡 Medium
 **Suggested Deadline:** 3 Days
@@ -95,7 +183,7 @@ While the other member does OAuth, this member can handle standard profile manag
 
 ---
 
-## 🚀 Task 5: PDF Export / Generation Service
+## 🚀 Task 6: PDF Export / Generation Service
 
 **Priority:** 🔵 Medium-Low (Future feature, but complex)
 **Suggested Deadline:** 2 Weeks (Can be assigned later)
@@ -117,5 +205,5 @@ A CV builder _must_ be able to export CVs to PDF. This usually involves using a 
 ### How to use this document:
 
 1. Review the tasks with the team member.
-2. Ask them to pick **Task 1** and break it down into smaller PRs (e.g., Create/Read first, Update/Delete second).
+2. Ask them to pick **Task 2** and break it down into smaller PRs (e.g., educations first, then skills/projects/certifications).
 3. Set a strict deadline (e.g., next Friday) for them to demonstrate the working APIs via Postman/Swagger.
