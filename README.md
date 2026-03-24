@@ -60,9 +60,12 @@ PORT=5000
 NODE_ENV=development
 MONGO_URI=
 CLIENT_URL=http://localhost:3000
-CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-CLERK_WEBHOOK_SECRET=
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
 ```
 
 > ⚠️ **Never commit the `.env` file to GitHub.** It is already added to `.gitignore`. Contact the team lead to get the required values.
@@ -85,63 +88,26 @@ This project uses **MongoDB Atlas** (a shared cloud database for the entire team
 
 ---
 
-## Step 5 — Get the Clerk API Keys
+## Step 5 — Get the OAuth credentials (optional)
 
-This project uses **Clerk** for user authentication.
+This project uses **JWT** for authentication with optional **Google** and **GitHub** OAuth login.
 
-1. Go to [clerk.com](https://clerk.com) and log in with the team account
-2. Select the **cv-builder** application
-3. Navigate to **Configure → API Keys**
-4. Copy the **Publishable Key** (starts with `pk_test_...`) → paste into `CLERK_PUBLISHABLE_KEY`
-5. Copy the **Secret Key** (starts with `sk_test_...`) → paste into `CLERK_SECRET_KEY`
+### Google OAuth
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials**
+2. Create an OAuth 2.0 Client ID
+3. Set the redirect URI to `http://localhost:5000/api/auth/google/callback`
+4. Copy **Client ID** → `GOOGLE_CLIENT_ID` and **Client Secret** → `GOOGLE_CLIENT_SECRET`
 
----
+### GitHub OAuth
+1. Go to [GitHub Settings → Developer Settings → OAuth Apps](https://github.com/settings/developers)
+2. Create a new OAuth App with callback URL `http://localhost:5000/api/auth/github/callback`
+3. Copy **Client ID** → `GITHUB_CLIENT_ID` and **Client Secret** → `GITHUB_CLIENT_SECRET`
 
-## Step 6 — Setup Webhook (only needed when testing user registration)
-
-The webhook automatically creates a user in MongoDB whenever someone signs up through Clerk. You **only need this step** if you are working on features related to auth or user management.
-
-### 6.1 — Install and configure ngrok
-
-Download ngrok at [ngrok.com/download](https://ngrok.com/download), extract the zip, and move `ngrok.exe` to `C:\ngrok\`.
-
-Add `C:\ngrok` to your **System PATH**:
-
-- Press **Windows + S** → search **"Environment Variables"**
-- **System variables → Path → New** → add `C:\ngrok`
-- Click OK to save
-
-Open a new PowerShell window and authenticate ngrok (get your token at [dashboard.ngrok.com](https://dashboard.ngrok.com)):
-
-```powershell
-ngrok config add-authtoken your_token_here
-```
-
-### 6.2 — Run ngrok
-
-Open a **separate** PowerShell window and run:
-
-```powershell
-ngrok http 5000
-```
-
-Copy the public URL that looks like `https://abc123.ngrok-free.app`.
-
-### 6.3 — Update the webhook URL on Clerk
-
-1. Go to Clerk dashboard → **Configure → Webhooks**
-2. Click the existing endpoint → **Edit**
-3. Update the URL to:
-   ```
-   https://abc123.ngrok-free.app/api/webhooks
-   ```
-4. Copy the **Signing Secret** (starts with `whsec_...`) → paste into `CLERK_WEBHOOK_SECRET` in your `.env`
-
-> ⚠️ **Note:** Every time you restart ngrok it generates a new URL. You will need to update the webhook URL on the Clerk dashboard each time.
+> You can skip this step if you only need email/password login.
 
 ---
 
-## Step 7 — Start the server
+## Step 6 — Start the server
 
 ```bash
 yarn dev
@@ -156,7 +122,7 @@ Server running on port 5000
 
 ---
 
-## Step 8 — Verify everything is working
+## Step 7 — Verify everything is working
 
 Open your browser and visit the following URLs:
 
@@ -167,26 +133,65 @@ Open your browser and visit the following URLs:
 
 ---
 
+## API Endpoints
+
+### Auth (`/api/auth`)
+
+| Method | Endpoint               | Description                   | Auth |
+| ------ | ---------------------- | ----------------------------- | ---- |
+| POST   | `/api/auth/register`   | Register a new user           | No   |
+| POST   | `/api/auth/login`      | Login with email & password   | No   |
+| POST   | `/api/auth/refresh`    | Refresh access token          | No   |
+| POST   | `/api/auth/logout`     | Logout user                   | No   |
+| GET    | `/api/auth/me`         | Get current user              | Yes  |
+| GET    | `/api/auth/google`     | Initiate Google OAuth         | No   |
+| GET    | `/api/auth/github`     | Initiate GitHub OAuth         | No   |
+
+### CV Management (`/api/cv`)
+
+| Method | Endpoint         | Description                          | Auth |
+| ------ | ---------------- | ------------------------------------ | ---- |
+| POST   | `/api/cv`        | Create a new CV                      | Yes  |
+| GET    | `/api/cv`        | Get all CVs for authenticated user   | Yes  |
+| GET    | `/api/cv/:id`    | Get a specific CV by ID              | Yes  |
+| PUT    | `/api/cv/:id`    | Update a CV                          | Yes  |
+| DELETE | `/api/cv/:id`    | Delete a CV                          | Yes  |
+
+> All CV endpoints include **ownership guards** — users can only access their own CVs.
+> Full interactive documentation is available at `/api-docs` (Swagger UI).
+
+---
+
 ## Project structure
 
 ```
 cv-builder-backend/
 ├── src/
 │   ├── config/
-│   │   └── db.js               # MongoDB connection
-│   ├── controllers/            # Route handler logic
+│   │   ├── db.js               # MongoDB connection
+│   │   └── passport.js         # Google & GitHub OAuth strategies
+│   ├── controllers/
+│   │   ├── auth.controller.js  # Auth handler logic
+│   │   └── cv.controller.js    # CV CRUD handler logic
 │   ├── middlewares/
-│   │   └── auth.middleware.js  # Clerk JWT verification
+│   │   └── auth.middleware.js  # JWT Bearer token verification
 │   ├── models/
-│   │   └── user.model.js       # MongoDB User schema
+│   │   ├── user.model.js       # User schema
+│   │   ├── cv.model.js         # CV schema (with embedded sub-schemas)
+│   │   ├── template.model.js   # Template schema
+│   │   ├── aiLog.model.js      # AI usage log schema
+│   │   └── subscription.model.js
 │   ├── routes/
-│   │   ├── auth.routes.js      # Auth-related routes
-│   │   ├── cv.routes.js        # CV-related routes
-│   │   └── webhook.routes.js   # Receives webhooks from Clerk
-│   ├── services/               # Business logic
-│   ├── utils/                  # Helper functions
+│   │   ├── auth.routes.js      # Auth routes (register, login, OAuth)
+│   │   └── cv.routes.js        # CV CRUD routes
+│   ├── validations/
+│   │   └── cv.validation.js    # Zod schemas & validate middleware
+│   ├── scripts/
+│   │   ├── seedDummy.js        # Seed database with sample data
+│   │   └── syncModels.js       # Sync models to MongoDB
+│   ├── utils/
+│   │   └── token.util.js       # JWT token generation helpers
 │   └── app.js                  # Express app configuration
-├── tests/                      # Unit and integration tests
 ├── server.js                   # Entry point
 ├── swagger.js                  # Swagger docs configuration
 ├── .env                        # Environment variables (DO NOT commit)
@@ -210,16 +215,16 @@ cv-builder-backend/
 
 ## Tech Stack
 
-| Technology         | Purpose                                 |
-| ------------------ | --------------------------------------- |
-| Node.js + Express  | Backend framework                       |
-| MongoDB + Mongoose | Database                                |
-| Clerk              | User authentication                     |
-| Swagger            | API documentation for the frontend team |
-| Zod                | Data validation                         |
-| Multer             | File uploads                            |
-| html-pdf-node      | Export CV to PDF                        |
-| Jest + Supertest   | Testing                                 |
+| Technology             | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| Node.js + Express      | Backend framework                       |
+| MongoDB + Mongoose     | Database                                |
+| JWT + Passport         | Authentication (local + Google/GitHub OAuth) |
+| Swagger (swagger-jsdoc)| API documentation for the frontend team |
+| Zod                    | Request body validation                 |
+| Multer                 | File uploads                            |
+| html-pdf-node          | Export CV to PDF                        |
+| Jest + Supertest       | Testing                                 |
 
 ---
 
@@ -235,12 +240,11 @@ cv-builder-backend/
 
 ## Troubleshooting
 
-| Error                       | Cause                                   | Fix                                         |
-| --------------------------- | --------------------------------------- | ------------------------------------------- |
-| `MongoDB connection failed` | Wrong MONGO_URI or IP not whitelisted   | Check `.env` and Atlas IP Whitelist         |
-| `Cannot find module`        | Dependencies not installed              | Run `yarn install`                          |
-| `401 Unauthenticated`       | Missing or invalid Clerk token          | Check `CLERK_SECRET_KEY` in `.env`          |
-| Webhook returns 404         | Wrong webhook URL                       | Make sure the URL ends with `/api/webhooks` |
-| Webhook returns 500         | ngrok not running or server not started | Start both ngrok and the server first       |
+| Error                       | Cause                                   | Fix                                             |
+| --------------------------- | --------------------------------------- | ------------------------------------------------ |
+| `MongoDB connection failed` | Wrong MONGO_URI or IP not whitelisted   | Check `.env` and Atlas IP Whitelist              |
+| `Cannot find module`        | Dependencies not installed              | Run `yarn install`                               |
+| `401 Not authorized`        | Missing or invalid JWT token            | Check `JWT_ACCESS_SECRET` in `.env`, re-login    |
+| `400 Validation failed`     | Request body doesn't match Zod schema   | Check the error details for which field is wrong |
 
 If you are still having issues, reach out to the team lead directly.
