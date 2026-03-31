@@ -164,7 +164,7 @@ export const deleteCV = async (req, res, next) => {
 // @access  Private
 export const addEducation = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
 
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
@@ -185,14 +185,16 @@ export const addEducation = async (req, res, next) => {
 // @access  Private
 export const editEducation = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
     const education = cv.educations.id(req.params.eduId);
     if (!education) {
-      return res.status(404).json({ success: false, message: 'Education not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Education not found' });
     }
 
     Object.assign(education, req.body);
@@ -204,13 +206,12 @@ export const editEducation = async (req, res, next) => {
   }
 };
 
-
 // @desc    Delete an education entry from educations array
 // @route   DELETE /api/cv/:id/educations/:eduId
 // @access  Private
 export const deleteEducation = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
 
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
@@ -219,23 +220,24 @@ export const deleteEducation = async (req, res, next) => {
     cv.educations.pull(req.params.eduId);
     await cv.save();
 
-    res.status(200).json({ success: true, message: "Education deleted succesfully" });
+    res
+      .status(200)
+      .json({ success: true, message: 'Education deleted succesfully' });
   } catch (error) {
     next(error);
   }
 };
 
-
 // @desc    Add an experience entry into experience array
 // @route   POST /api/cv/:id/experiences
 // @access  Private
-export const addExperience= async (req, res, next) => {
+export const addExperience = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
-    cv.experiences.push(req.body)
+    cv.experiences.push(req.body);
     await cv.save();
 
     const newExperience = cv.experiences[cv.experiences.length - 1];
@@ -251,14 +253,16 @@ export const addExperience= async (req, res, next) => {
 // @access  Private
 export const editExperience = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
     const experience = cv.experiences.id(req.params.expId);
     if (!experience) {
-      return res.status(404).json({ success: false, message: 'Experience not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Experience not found' });
     }
 
     Object.assign(experience, req.body);
@@ -275,7 +279,7 @@ export const editExperience = async (req, res, next) => {
 // @access  Private
 export const deleteExperience = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
 
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
@@ -284,23 +288,24 @@ export const deleteExperience = async (req, res, next) => {
     cv.experiences.pull(req.params.expId);
     await cv.save();
 
-    res.status(200).json({ success: true, message: "Experience deleted succesfully" });
+    res
+      .status(200)
+      .json({ success: true, message: 'Experience deleted succesfully' });
   } catch (error) {
     next(error);
   }
 };
-
 
 // @desc    Add a skill entry into skill array
 // @route   POST /api/cv/:id/skills
 // @access  Private
 export const addSkill = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
-    cv.skills.push(req.body)
+    cv.skills.push(req.body);
     await cv.save();
 
     const newSkill = cv.skills[cv.skills.length - 1];
@@ -311,20 +316,21 @@ export const addSkill = async (req, res, next) => {
   }
 };
 
-
 // @desc    Edit a skill entry in skill array
 // @route   PUT /api/cv/:id/skills/:skillId
 // @access  Private
 export const editSkill = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
     const skill = cv.skills.id(req.params.skillId);
     if (!skill) {
-      return res.status(404).json({ success: false, message: 'Skill not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Skill not found' });
     }
 
     Object.assign(skill, req.body);
@@ -341,7 +347,7 @@ export const editSkill = async (req, res, next) => {
 // @access  Private
 export const deleteSkill = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id)
+    const cv = await CV.findById(req.params.id);
 
     if (!cv || cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
@@ -350,7 +356,9 @@ export const deleteSkill = async (req, res, next) => {
     cv.skills.pull(req.params.skillId);
     await cv.save();
 
-    res.status(200).json({ success: true, message: "Skill deleted succesfully" });
+    res
+      .status(200)
+      .json({ success: true, message: 'Skill deleted succesfully' });
   } catch (error) {
     next(error);
   }
