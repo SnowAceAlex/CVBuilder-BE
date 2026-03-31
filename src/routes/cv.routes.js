@@ -6,9 +6,21 @@ import {
   getCVById,
   updateCV,
   deleteCV,
+  addEducation,
+  addExperience,
+  addSkill,
+  editEducation,
+  editExperience,
+  editSkill,
+  deleteEducation,
+  deleteExperience,
+  deleteSkill,
 } from '../controllers/cv.controller.js';
 import {
   createCVSchema,
+  educationSchema,
+  experienceSchema,
+  skillSchema,
   updateCVSchema,
   validate,
 } from '../validations/cv.validation.js';
@@ -268,5 +280,413 @@ router.put('/:id', protect, validate(updateCVSchema), updateCV);
  *         description: CV not found
  */
 router.delete('/:id', protect, deleteCV);
+/**
+ * @swagger
+ * /api/cv/{id}/educations:
+ *   post:
+ *     summary: Add an education entry to CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - schoolName
+ *             properties:
+ *               schoolName:
+ *                 type: string
+ *               major:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Education added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.post(
+  '/:id/educations',
+  protect,
+  validate(educationSchema),
+  addEducation,
+);
+
+/**
+ * @swagger
+ * /api/cv/{id}/educations/{eduId}:
+ *   put:
+ *     summary: Update an education entry in CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: eduId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Education entry ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - schoolName
+ *             properties:
+ *               schoolName:
+ *                 type: string
+ *               major:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Education updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Education not found
+ */
+router.put(
+  '/:id/educations/:eduId',
+  protect,
+  validate(educationSchema),
+  editEducation,
+);
+
+/**
+ * @swagger
+ * /api/cv/{id}/educations/{eduId}:
+ *   delete:
+ *     summary: Delete an education entry from CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: eduId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Education entry ID
+ *     responses:
+ *       200:
+ *         description: Education deleted successfully
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Education not found
+ */
+router.delete('/:id/educations/:eduId', protect, deleteEducation);
+
+/**
+ * @swagger
+ * /api/cv/{id}/experiences:
+ *   post:
+ *     summary: Add an experience entry to CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - companyName
+ *               - position
+ *             properties:
+ *               companyName:
+ *                 type: string
+ *               position:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Experience added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.post(
+  '/:id/experiences',
+  protect,
+  validate(experienceSchema),
+  addExperience,
+);
+
+/**
+ * @swagger
+ * /api/cv/{id}/experiences/{expId}:
+ *   put:
+ *     summary: Update an experience entry in CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: expId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Experience entry ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - companyName
+ *               - position
+ *             properties:
+ *               companyName:
+ *                 type: string
+ *               position:
+ *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Experience updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Experience not found
+ */
+router.put(
+  '/:id/experiences/:expId',
+  protect,
+  validate(experienceSchema),
+  editExperience,
+);
+
+/**
+ * @swagger
+ * /api/cv/{id}/experiences/{expId}:
+ *   delete:
+ *     summary: Delete an experience entry from CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: expId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Experience entry ID
+ *     responses:
+ *       200:
+ *         description: Experience deleted successfully
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Experience not found
+ */
+router.delete('/:id/experiences/:expId', protect, deleteExperience);
+
+/**
+ * @swagger
+ * /api/cv/{id}/skills:
+ *   post:
+ *     summary: Add a skill entry to CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - skillName
+ *             properties:
+ *               skillName:
+ *                 type: string
+ *               level:
+ *                 type: string
+ *                 enum: [Beginner, Intermediate, Advanced, Expert]
+ *                 default: Intermediate
+ *     responses:
+ *       201:
+ *         description: Skill added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.post('/:id/skills', protect, validate(skillSchema), addSkill);
+
+/**
+ * @swagger
+ * /api/cv/{id}/skills/{skillId}:
+ *   put:
+ *     summary: Update a skill entry in CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: skillId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Skill entry ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - skillName
+ *             properties:
+ *               skillName:
+ *                 type: string
+ *               level:
+ *                 type: string
+ *                 enum: [Beginner, Intermediate, Advanced, Expert]
+ *                 default: Intermediate
+ *     responses:
+ *       200:
+ *         description: Skill updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Skill not found
+ */
+router.put('/:id/skills/:skillId', protect, validate(skillSchema), editSkill);
+
+/**
+ * @swagger
+ * /api/cv/{id}/skills/{skillId}:
+ *   delete:
+ *     summary: Delete a skill entry from CV
+ *     tags: [CV]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: skillId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Skill entry ID
+ *     responses:
+ *       200:
+ *         description: Skill deleted successfully
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Skill not found
+ */
+router.delete('/:id/skills/:skillId', protect, deleteSkill);
 
 export default router;

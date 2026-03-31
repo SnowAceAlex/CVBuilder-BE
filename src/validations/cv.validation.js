@@ -17,7 +17,7 @@ const personalInfoSchema = z
   })
   .optional();
 
-const educationSchema = z.object({
+export const educationSchema = z.object({
   schoolName: z.string().trim().min(1, 'School name is required'),
   major: z.string().trim().optional(),
   startDate: z.string().datetime({ offset: true }).optional(),
@@ -25,7 +25,7 @@ const educationSchema = z.object({
   description: z.string().trim().optional(),
 });
 
-const experienceSchema = z.object({
+export const experienceSchema = z.object({
   companyName: z.string().trim().min(1, 'Company name is required'),
   position: z.string().trim().min(1, 'Position is required'),
   startDate: z.string().datetime({ offset: true }).optional(),
@@ -33,7 +33,7 @@ const experienceSchema = z.object({
   description: z.string().trim().optional(),
 });
 
-const skillSchema = z.object({
+export const skillSchema = z.object({
   skillName: z.string().trim().min(1, 'Skill name is required'),
   level: z
     .enum(['Beginner', 'Intermediate', 'Advanced', 'Expert'])
