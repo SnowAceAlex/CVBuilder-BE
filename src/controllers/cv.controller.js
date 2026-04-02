@@ -229,7 +229,7 @@ export const deleteEducation = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ success: true, message: 'Education deleted succesfully' });
+      .json({ success: true, message: 'Education deleted successfully' });
   } catch (error) {
     next(error);
   }
