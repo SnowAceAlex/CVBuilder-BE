@@ -217,7 +217,14 @@ export const deleteEducation = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
-    cv.educations.pull(req.params.eduId);
+    const education = cv.educations.id(req.params.eduId);
+    if (!education) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Education not found' });
+    }
+
+    education.deleteOne();
     await cv.save();
 
     res
