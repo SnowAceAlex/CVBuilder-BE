@@ -28,7 +28,7 @@ export const createCV = async (req, res, next) => {
           .status(404)
           .json({ success: false, message: 'Template not found' });
       }
-      defaultSections = template.sections;
+      defaultSections = template.sections ?? [];
     }
 
     const cv = await CV.create({
@@ -42,7 +42,7 @@ export const createCV = async (req, res, next) => {
       skills,
       projects,
       certifications,
-      sections: defaultSections,
+      sections: defaultSections ?? [],
     });
 
     res.status(201).json({ success: true, data: cv });
@@ -336,7 +336,7 @@ export const editSkill = async (req, res, next) => {
     Object.assign(skill, req.body);
     await cv.save();
 
-    res.status(201).json({ success: true, data: skill });
+    res.status(200).json({ success: true, data: skill });
   } catch (error) {
     next(error);
   }

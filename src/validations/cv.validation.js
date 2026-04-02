@@ -33,12 +33,42 @@ export const experienceSchema = z.object({
   description: z.string().trim().optional(),
 });
 
+const skillLevelSchema = z.enum([
+  'Beginner',
+  'Intermediate',
+  'Advanced',
+  'Expert',
+]);
+
 export const skillSchema = z.object({
   skillName: z.string().trim().min(1, 'Skill name is required'),
-  level: z
-    .enum(['Beginner', 'Intermediate', 'Advanced', 'Expert'])
-    .default('Intermediate'),
+  level: skillLevelSchema.default('Intermediate'),
 });
+
+// ── Update (partial) schemas for embedded resources ──
+// PUT handlers support partial updates via Object.assign(), so required fields
+// are made optional, but empty `{}` updates are rejected.
+export const educationUpdateSchema = educationSchema
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one education field is required',
+  });
+
+export const experienceUpdateSchema = experienceSchema
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one experience field is required',
+  });
+
+export const skillUpdateSchema = z
+  .object({
+    skillName: z.string().trim().min(1, 'Skill name is required'),
+    level: skillLevelSchema,
+  })
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one skill field is required',
+  });
 
 const projectSchema = z.object({
   projectName: z.string().trim().min(1, 'Project name is required'),
@@ -93,7 +123,11 @@ export const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse(req.body);
 
   if (!result.success) {
-    const errors = result.error.errors.map((err) => ({
+    // Zod historically used `.errors` (older versions) and newer uses `.issues`.
+    const zodError = result.error;
+    const zodIssues = zodError.issues ?? zodError.errors ?? [];
+
+    const errors = zodIssues.map((err) => ({
       field: err.path.join('.'),
       message: err.message,
     }));

@@ -21,6 +21,9 @@ import {
   educationSchema,
   experienceSchema,
   skillSchema,
+  educationUpdateSchema,
+  experienceUpdateSchema,
+  skillUpdateSchema,
   updateCVSchema,
   validate,
 } from '../validations/cv.validation.js';
@@ -53,10 +56,10 @@ const router = express.Router();
  *             properties:
  *               cvTitle:
  *                 type: string
- *                 example: My Professional CV
+ *                 example: Web Developer Fresher CV
  *               templateId:
  *                 type: string
- *                 example: 60d5ec49f1b2c72b9c8e4d3a
+ *                 example: 69aa83f4ccd97e2226dc4ebe
  *               status:
  *                 type: string
  *                 enum: [draft, completed, published]
@@ -154,6 +157,17 @@ const router = express.Router();
  *                       format: date-time
  *                     url:
  *                       type: string
+ *           example:
+ *             cvTitle: Web Developer Fresher CV
+ *             templateId: 69aa83f4ccd97e2226dc4ebe
+ *             status: draft
+ *             personalInfo:
+ *               fullName: Jane Doe
+ *               email: jane.doe@example.com
+ *               phone: "0901234567"
+ *               address: 123 Sample Street, Ho Chi Minh City
+ *               jobTitle: Software Engineer
+ *               summary: Building modern web applications with JavaScript, React, and Node.js
  *     responses:
  *       201:
  *         description: CV created successfully
@@ -229,6 +243,8 @@ router.get('/:id', protect, getCVById);
  *             properties:
  *               cvTitle:
  *                 type: string
+ *               templateId:
+ *                 type: string
  *               status:
  *                 type: string
  *                 enum: [draft, completed, published]
@@ -244,6 +260,19 @@ router.get('/:id', protect, getCVById);
  *                 type: array
  *               certifications:
  *                 type: array
+ *               sections:
+ *                 type: array
+ *           example:
+ *             cvTitle: Web Developer Fresher CV
+ *             templateId: 69aa83f4ccd97e2226dc4ebe
+ *             status: draft
+ *             personalInfo:
+ *               fullName: Jane Doe
+ *               email: jane.doe@example.com
+ *               phone: "0901234567"
+ *               address: 123 Sample Street, Ho Chi Minh City
+ *               jobTitle: Software Engineer
+ *               summary: Building modern web applications with JavaScript, React, and Node.js
  *     responses:
  *       200:
  *         description: CV updated successfully
@@ -280,6 +309,7 @@ router.put('/:id', protect, validate(updateCVSchema), updateCV);
  *         description: CV not found
  */
 router.delete('/:id', protect, deleteCV);
+
 /**
  * @swagger
  * /api/cv/{id}/educations:
@@ -301,8 +331,6 @@ router.delete('/:id', protect, deleteCV);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - schoolName
  *             properties:
  *               schoolName:
  *                 type: string
@@ -388,7 +416,7 @@ router.post(
 router.put(
   '/:id/educations/:eduId',
   protect,
-  validate(educationSchema),
+  validate(educationUpdateSchema),
   editEducation,
 );
 
@@ -444,9 +472,6 @@ router.delete('/:id/educations/:eduId', protect, deleteEducation);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - companyName
- *               - position
  *             properties:
  *               companyName:
  *                 type: string
@@ -533,7 +558,7 @@ router.post(
 router.put(
   '/:id/experiences/:expId',
   protect,
-  validate(experienceSchema),
+  validate(experienceUpdateSchema),
   editExperience,
 );
 
@@ -589,8 +614,6 @@ router.delete('/:id/experiences/:expId', protect, deleteExperience);
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - skillName
  *             properties:
  *               skillName:
  *                 type: string
@@ -656,7 +679,12 @@ router.post('/:id/skills', protect, validate(skillSchema), addSkill);
  *       404:
  *         description: CV or Skill not found
  */
-router.put('/:id/skills/:skillId', protect, validate(skillSchema), editSkill);
+router.put(
+  '/:id/skills/:skillId',
+  protect,
+  validate(skillUpdateSchema),
+  editSkill,
+);
 
 /**
  * @swagger
