@@ -292,6 +292,12 @@ export const deleteExperience = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
+    const experience = cv.experiences.id(req.params.expId);
+    if (!experience) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Experience not found' });
+    }
     cv.experiences.pull(req.params.expId);
     await cv.save();
 
