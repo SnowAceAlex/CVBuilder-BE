@@ -366,6 +366,12 @@ export const deleteSkill = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
+    const skill = cv.skills.id(req.params.skillId);
+    if (!skill) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Skill not found' });
+    }
     cv.skills.pull(req.params.skillId);
     await cv.save();
 
