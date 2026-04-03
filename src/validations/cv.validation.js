@@ -119,7 +119,9 @@ export const sectionSchema = z.object({
   isVisible: z.boolean().default(true),
 });
 
-export const sectionsUpdateSchema = z.array(sectionSchema).min(1, 'Sections array cannot be empty');
+export const sectionsUpdateSchema = z
+  .array(sectionSchema)
+  .min(1, 'Sections array cannot be empty');
 
 // ── Main schemas ──
 
