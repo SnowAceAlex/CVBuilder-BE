@@ -382,3 +382,195 @@ export const deleteSkill = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Update personal info
+// @route   PUT /api/cv/:id/personal-info
+// @access  Private
+export const updatePersonalInfo = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    cv.personalInfo = { ...cv.personalInfo, ...req.body };
+    await cv.save();
+
+    res.status(200).json({ success: true, data: cv.personalInfo });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Add a project entry into projects array
+// @route   POST /api/cv/:id/projects
+// @access  Private
+export const addProject = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    cv.projects.push(req.body);
+    await cv.save();
+
+    const newProject = cv.projects[cv.projects.length - 1];
+    res.status(201).json({ success: true, data: newProject });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Edit a project entry in projects array
+// @route   PUT /api/cv/:id/projects/:projectId
+// @access  Private
+export const editProject = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const project = cv.projects.id(req.params.projectId);
+    if (!project) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Project not found' });
+    }
+
+    Object.assign(project, req.body);
+    await cv.save();
+
+    res.status(200).json({ success: true, data: project });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a project entry from projects array
+// @route   DELETE /api/cv/:id/projects/:projectId
+// @access  Private
+export const deleteProject = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const project = cv.projects.id(req.params.projectId);
+    if (!project) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Project not found' });
+    }
+
+    cv.projects.pull(req.params.projectId);
+    await cv.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Project deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Add a certification entry into certifications array
+// @route   POST /api/cv/:id/certifications
+// @access  Private
+export const addCertification = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    cv.certifications.push(req.body);
+    await cv.save();
+
+    const newCertification = cv.certifications[cv.certifications.length - 1];
+    res.status(201).json({ success: true, data: newCertification });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Edit a certification entry in certifications array
+// @route   PUT /api/cv/:id/certifications/:certId
+// @access  Private
+export const editCertification = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const certification = cv.certifications.id(req.params.certId);
+    if (!certification) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Certification not found' });
+    }
+
+    Object.assign(certification, req.body);
+    await cv.save();
+
+    res.status(200).json({ success: true, data: certification });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a certification entry from certifications array
+// @route   DELETE /api/cv/:id/certifications/:certId
+// @access  Private
+export const deleteCertification = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const certification = cv.certifications.id(req.params.certId);
+    if (!certification) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Certification not found' });
+    }
+
+    cv.certifications.pull(req.params.certId);
+    await cv.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Certification deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update CV sections ordering/visibility
+// @route   PUT /api/cv/:id/sections
+// @access  Private
+export const updateSections = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    cv.sections = req.body;
+    await cv.save();
+
+    res.status(200).json({ success: true, data: cv.sections });
+  } catch (error) {
+    next(error);
+  }
+};

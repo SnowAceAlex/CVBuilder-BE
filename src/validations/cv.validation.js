@@ -6,7 +6,7 @@ const objectIdSchema = z.string().regex(objectIdRegex, 'Invalid ObjectId');
 
 // ── Sub-schemas (mirror cv.model.js) ──
 
-const personalInfoSchema = z
+export const personalInfoSchema = z
   .object({
     fullName: z.string().trim().optional(),
     email: z.string().trim().email('Invalid email').optional(),
@@ -16,6 +16,13 @@ const personalInfoSchema = z
     summary: z.string().trim().optional(),
   })
   .optional();
+
+export const personalInfoUpdateSchema = personalInfoSchema
+  .unwrap()
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one personal info field is required',
+  });
 
 export const educationSchema = z.object({
   schoolName: z.string().trim().min(1, 'School name is required'),
@@ -70,7 +77,7 @@ export const skillUpdateSchema = z
     message: 'At least one skill field is required',
   });
 
-const projectSchema = z.object({
+export const projectSchema = z.object({
   projectName: z.string().trim().min(1, 'Project name is required'),
   description: z.string().trim().optional(),
   url: z.string().trim().url('Invalid URL').optional().or(z.literal('')),
@@ -78,7 +85,13 @@ const projectSchema = z.object({
   endDate: z.string().datetime({ offset: true }).optional(),
 });
 
-const certificationSchema = z.object({
+export const projectUpdateSchema = projectSchema
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one project field is required',
+  });
+
+export const certificationSchema = z.object({
   name: z.string().trim().min(1, 'Certification name is required'),
   issuer: z.string().trim().optional(),
   issueDate: z.string().datetime({ offset: true }).optional(),
@@ -86,7 +99,13 @@ const certificationSchema = z.object({
   url: z.string().trim().url('Invalid URL').optional().or(z.literal('')),
 });
 
-const sectionSchema = z.object({
+export const certificationUpdateSchema = certificationSchema
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one certification field is required',
+  });
+
+export const sectionSchema = z.object({
   sectionKey: z.enum([
     'personalInfo',
     'educations',
@@ -99,6 +118,10 @@ const sectionSchema = z.object({
   order: z.number().int().min(0),
   isVisible: z.boolean().default(true),
 });
+
+export const sectionsUpdateSchema = z
+  .array(sectionSchema)
+  .min(1, 'Sections array cannot be empty');
 
 // ── Main schemas ──
 
