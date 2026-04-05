@@ -127,7 +127,7 @@ export const sectionsUpdateSchema = z
 
 export const createCVSchema = z.object({
   cvTitle: z.string().trim().min(1, 'CV title is required'),
-  templateId: objectIdSchema.optional(),
+  templateId: objectIdSchema,
   status: z.enum(['draft', 'completed', 'published']).default('draft'),
   personalInfo: personalInfoSchema,
   educations: z.array(educationSchema).optional(),

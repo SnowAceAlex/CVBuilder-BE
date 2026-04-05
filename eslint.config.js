@@ -6,7 +6,7 @@ export default [
   js.configs.recommended,
   {
     languageOptions: {
-      ecmaVersion: 2021,
+      ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
         ...globals.node,
@@ -14,6 +14,14 @@ export default [
     },
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['**/__tests__/**/*.js', '**/*.test.js', '**/*.spec.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
     },
   },
   eslintConfigPrettier,

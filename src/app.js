@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import swaggerSpec from '../swagger.js';
 import authRoutes from './routes/auth.routes.js';
 import cvRoutes from './routes/cv.routes.js';
+import templateRoutes from './routes/template.routes.js';
 import passport from './config/passport.js';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/cv', cvRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'CVBuilder API is running' }));

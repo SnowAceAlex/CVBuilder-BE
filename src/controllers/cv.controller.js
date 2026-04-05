@@ -1,6 +1,63 @@
 import CV from '../models/cv.model.js';
 import Template from '../models/template.model.js';
 
+const SECTION_KEYS = [
+  'personalInfo',
+  'educations',
+  'experiences',
+  'skills',
+  'projects',
+  'certifications',
+];
+
+const ARRAY_SECTION_KEYS = SECTION_KEYS.filter((key) => key !== 'personalInfo');
+
+const getTemplateSections = (template) => {
+  if (template?.layout?.sections?.length) {
+    return template.layout.sections;
+  }
+  return template?.sections ?? [];
+};
+
+const createPersonalInfoDefaults = (fieldConfig = []) => {
+  const personalInfoConfig = fieldConfig.find(
+    (section) => section.sectionKey === 'personalInfo',
+  );
+
+  if (!personalInfoConfig?.fields?.length) {
+    return {};
+  }
+
+  return personalInfoConfig.fields.reduce((acc, field) => {
+    if (field?.key && field.defaultValue !== undefined) {
+      acc[field.key] = field.defaultValue;
+    }
+    return acc;
+  }, {});
+};
+
+const createArraySectionDefaults = (fieldConfig = []) => {
+  return ARRAY_SECTION_KEYS.reduce((acc, sectionKey) => {
+    const sectionConfig = fieldConfig.find(
+      (section) => section.sectionKey === sectionKey,
+    );
+    const defaultEntries = sectionConfig?.defaultEntries;
+    acc[sectionKey] = Array.isArray(defaultEntries) ? defaultEntries : [];
+    return acc;
+  }, {});
+};
+
+const buildTemplateSnapshot = (template) => ({
+  templateId: template._id,
+  name: template.name,
+  category: template.category,
+  thumbnailUrl: template.thumbnailUrl,
+  schemaVersion: template.schemaVersion ?? 1,
+  layout: { sections: getTemplateSections(template) },
+  fieldConfig: template.fieldConfig ?? [],
+  renderMeta: template.renderMeta ?? {},
+});
+
 // @desc    Create a new CV
 // @route   POST /api/cv
 // @access  Private
@@ -19,30 +76,28 @@ export const createCV = async (req, res, next) => {
       sections,
     } = req.body;
 
-    // If a templateId is provided, copy the template's default sections
-    let defaultSections = sections;
-    if (templateId && !sections) {
-      const template = await Template.findById(templateId);
-      if (!template) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Template not found' });
-      }
-      defaultSections = template.sections ?? [];
+    const template = await Template.findOne({ _id: templateId, isActive: true });
+    if (!template) {
+      return res.status(404).json({ success: false, message: 'Template not found' });
     }
+
+    const templateSections = getTemplateSections(template);
+    const personalInfoDefaults = createPersonalInfoDefaults(template.fieldConfig);
+    const arrayDefaults = createArraySectionDefaults(template.fieldConfig);
 
     const cv = await CV.create({
       userId: req.user._id,
       cvTitle,
       templateId,
       status,
-      personalInfo,
-      educations,
-      experiences,
-      skills,
-      projects,
-      certifications,
-      sections: defaultSections ?? [],
+      personalInfo: { ...personalInfoDefaults, ...(personalInfo ?? {}) },
+      educations: educations ?? arrayDefaults.educations,
+      experiences: experiences ?? arrayDefaults.experiences,
+      skills: skills ?? arrayDefaults.skills,
+      projects: projects ?? arrayDefaults.projects,
+      certifications: certifications ?? arrayDefaults.certifications,
+      sections: sections ?? templateSections,
+      templateSnapshot: buildTemplateSnapshot(template),
     });
 
     res.status(201).json({ success: true, data: cv });
@@ -107,10 +162,20 @@ export const updateCV = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
+    if (
+      req.body.templateId !== undefined &&
+      req.body.templateId.toString() !== cv.templateId.toString()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Template cannot be changed for an existing CV. Please create a new CV with the desired template.',
+      });
+    }
+
     // Update only the fields provided in the request body
     const allowedFields = [
       'cvTitle',
-      'templateId',
       'status',
       'personalInfo',
       'educations',
