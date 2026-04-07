@@ -11,7 +11,9 @@ export const getTemplates = async (req, res, next) => {
 
     const [templates, total] = await Promise.all([
       Template.find({ isActive: true })
-        .select('name thumbnailUrl category schemaVersion renderMeta layout sections')
+        .select(
+          'name thumbnailUrl category schemaVersion renderMeta layout sections',
+        )
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),

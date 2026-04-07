@@ -24,7 +24,9 @@ export const validateTemplateListQuery = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: toValidationErrors(result.error.issues ?? result.error.errors ?? []),
+      errors: toValidationErrors(
+        result.error.issues ?? result.error.errors ?? [],
+      ),
     });
   }
 
@@ -39,7 +41,9 @@ export const validateTemplateIdParam = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: toValidationErrors(result.error.issues ?? result.error.errors ?? []),
+      errors: toValidationErrors(
+        result.error.issues ?? result.error.errors ?? [],
+      ),
     });
   }
 

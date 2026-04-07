@@ -76,13 +76,20 @@ export const createCV = async (req, res, next) => {
       sections,
     } = req.body;
 
-    const template = await Template.findOne({ _id: templateId, isActive: true });
+    const template = await Template.findOne({
+      _id: templateId,
+      isActive: true,
+    });
     if (!template) {
-      return res.status(404).json({ success: false, message: 'Template not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Template not found' });
     }
 
     const templateSections = getTemplateSections(template);
-    const personalInfoDefaults = createPersonalInfoDefaults(template.fieldConfig);
+    const personalInfoDefaults = createPersonalInfoDefaults(
+      template.fieldConfig,
+    );
     const arrayDefaults = createArraySectionDefaults(template.fieldConfig);
 
     const cv = await CV.create({

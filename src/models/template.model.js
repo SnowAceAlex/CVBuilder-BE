@@ -96,7 +96,8 @@ templateSchema.pre('validate', function ensureLayoutSections(next) {
   }
 
   const layoutSections = this.layout.sections;
-  const hasLayoutSections = Array.isArray(layoutSections) && layoutSections.length > 0;
+  const hasLayoutSections =
+    Array.isArray(layoutSections) && layoutSections.length > 0;
   const hasLegacySections =
     Array.isArray(this.sections) && this.sections.length > 0;
 

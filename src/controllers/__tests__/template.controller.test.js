@@ -10,7 +10,8 @@ jest.unstable_mockModule('../../models/template.model.js', () => ({
   default: mockTemplateModel,
 }));
 
-const { getTemplates, getTemplateById } = await import('../template.controller.js');
+const { getTemplates, getTemplateById } =
+  await import('../template.controller.js');
 
 const createMockRes = () => {
   const res = {};
