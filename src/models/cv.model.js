@@ -76,42 +76,6 @@ const sectionSchema = new mongoose.Schema(
   { _id: false },
 );
 
-const templateSnapshotSectionSchema = new mongoose.Schema(
-  {
-    sectionKey: {
-      type: String,
-      enum: [
-        'personalInfo',
-        'educations',
-        'experiences',
-        'skills',
-        'projects',
-        'certifications',
-      ],
-    },
-    displayName: { type: String },
-    order: { type: Number },
-    isVisible: { type: Boolean },
-  },
-  { _id: false },
-);
-
-const templateSnapshotSchema = new mongoose.Schema(
-  {
-    templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Template' },
-    name: { type: String, trim: true },
-    category: { type: String, trim: true },
-    thumbnailUrl: { type: String, trim: true },
-    schemaVersion: { type: Number },
-    layout: {
-      sections: [templateSnapshotSectionSchema],
-    },
-    fieldConfig: [{ type: mongoose.Schema.Types.Mixed }],
-    renderMeta: { type: mongoose.Schema.Types.Mixed },
-  },
-  { _id: false },
-);
-
 // ── Main CV Schema ──
 
 const cvSchema = new mongoose.Schema(
@@ -123,8 +87,7 @@ const cvSchema = new mongoose.Schema(
       index: true,
     },
     templateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Template',
+      type: String,
       required: true,
     },
     cvTitle: {
@@ -149,7 +112,6 @@ const cvSchema = new mongoose.Schema(
 
     // Section ordering for drag-and-drop
     sections: [sectionSchema],
-    templateSnapshot: templateSnapshotSchema,
   },
   { timestamps: true },
 );

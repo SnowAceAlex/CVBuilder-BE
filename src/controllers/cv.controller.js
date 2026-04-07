@@ -1,62 +1,6 @@
 import CV from '../models/cv.model.js';
-import Template from '../models/template.model.js';
 
-const SECTION_KEYS = [
-  'personalInfo',
-  'educations',
-  'experiences',
-  'skills',
-  'projects',
-  'certifications',
-];
 
-const ARRAY_SECTION_KEYS = SECTION_KEYS.filter((key) => key !== 'personalInfo');
-
-const getTemplateSections = (template) => {
-  if (template?.layout?.sections?.length) {
-    return template.layout.sections;
-  }
-  return template?.sections ?? [];
-};
-
-const createPersonalInfoDefaults = (fieldConfig = []) => {
-  const personalInfoConfig = fieldConfig.find(
-    (section) => section.sectionKey === 'personalInfo',
-  );
-
-  if (!personalInfoConfig?.fields?.length) {
-    return {};
-  }
-
-  return personalInfoConfig.fields.reduce((acc, field) => {
-    if (field?.key && field.defaultValue !== undefined) {
-      acc[field.key] = field.defaultValue;
-    }
-    return acc;
-  }, {});
-};
-
-const createArraySectionDefaults = (fieldConfig = []) => {
-  return ARRAY_SECTION_KEYS.reduce((acc, sectionKey) => {
-    const sectionConfig = fieldConfig.find(
-      (section) => section.sectionKey === sectionKey,
-    );
-    const defaultEntries = sectionConfig?.defaultEntries;
-    acc[sectionKey] = Array.isArray(defaultEntries) ? defaultEntries : [];
-    return acc;
-  }, {});
-};
-
-const buildTemplateSnapshot = (template) => ({
-  templateId: template._id,
-  name: template.name,
-  category: template.category,
-  thumbnailUrl: template.thumbnailUrl,
-  schemaVersion: template.schemaVersion ?? 1,
-  layout: { sections: getTemplateSections(template) },
-  fieldConfig: template.fieldConfig ?? [],
-  renderMeta: template.renderMeta ?? {},
-});
 
 // @desc    Create a new CV
 // @route   POST /api/cv
@@ -76,35 +20,18 @@ export const createCV = async (req, res, next) => {
       sections,
     } = req.body;
 
-    const template = await Template.findOne({
-      _id: templateId,
-      isActive: true,
-    });
-    if (!template) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Template not found' });
-    }
-
-    const templateSections = getTemplateSections(template);
-    const personalInfoDefaults = createPersonalInfoDefaults(
-      template.fieldConfig,
-    );
-    const arrayDefaults = createArraySectionDefaults(template.fieldConfig);
-
     const cv = await CV.create({
       userId: req.user._id,
       cvTitle,
       templateId,
       status,
-      personalInfo: { ...personalInfoDefaults, ...(personalInfo ?? {}) },
-      educations: educations ?? arrayDefaults.educations,
-      experiences: experiences ?? arrayDefaults.experiences,
-      skills: skills ?? arrayDefaults.skills,
-      projects: projects ?? arrayDefaults.projects,
-      certifications: certifications ?? arrayDefaults.certifications,
-      sections: sections ?? templateSections,
-      templateSnapshot: buildTemplateSnapshot(template),
+      personalInfo: personalInfo ?? {},
+      educations: educations ?? [],
+      experiences: experiences ?? [],
+      skills: skills ?? [],
+      projects: projects ?? [],
+      certifications: certifications ?? [],
+      sections: sections ?? [],
     });
 
     res.status(201).json({ success: true, data: cv });
@@ -118,9 +45,9 @@ export const createCV = async (req, res, next) => {
 // @access  Private
 export const getAllCVs = async (req, res, next) => {
   try {
-    const cvs = await CV.find({ userId: req.user._id })
-      .populate('templateId', 'name category thumbnailUrl')
-      .sort({ updatedAt: -1 });
+    const cvs = await CV.find({ userId: req.user._id }).sort({
+      updatedAt: -1,
+    });
 
     res.status(200).json({ success: true, count: cvs.length, data: cvs });
   } catch (error) {
@@ -133,10 +60,7 @@ export const getAllCVs = async (req, res, next) => {
 // @access  Private
 export const getCVById = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id).populate(
-      'templateId',
-      'name category thumbnailUrl sections',
-    );
+    const cv = await CV.findById(req.params.id);
 
     if (!cv) {
       return res.status(404).json({ success: false, message: 'CV not found' });

@@ -1,8 +1,7 @@
 import { z } from 'zod';
 
 // ── Helper: MongoDB ObjectId string ──
-const objectIdRegex = /^[a-fA-F0-9]{24}$/;
-const objectIdSchema = z.string().regex(objectIdRegex, 'Invalid ObjectId');
+// Removed due to text-based templateId
 
 // ── Sub-schemas (mirror cv.model.js) ──
 
@@ -127,7 +126,7 @@ export const sectionsUpdateSchema = z
 
 export const createCVSchema = z.object({
   cvTitle: z.string().trim().min(1, 'CV title is required'),
-  templateId: objectIdSchema,
+  templateId: z.string().trim().min(1, 'Template ID is required'),
   status: z.enum(['draft', 'completed', 'published']).default('draft'),
   personalInfo: personalInfoSchema,
   educations: z.array(educationSchema).optional(),
