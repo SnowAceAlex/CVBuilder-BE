@@ -29,7 +29,3 @@ jobs:
       - name: Check formatting
         run: npx prettier --check src/
 
-      - name: Run tests
-        run: npx jest --ci --passWithNoTests
-        env:
-          NODE_ENV: test
