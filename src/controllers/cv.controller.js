@@ -1,7 +1,5 @@
 import CV from '../models/cv.model.js';
 
-
-
 // @desc    Create a new CV
 // @route   POST /api/cv
 // @access  Private
