@@ -1,5 +1,4 @@
 import CV from '../models/cv.model.js';
-import Template from '../models/template.model.js';
 
 // @desc    Create a new CV
 // @route   POST /api/cv
@@ -19,30 +18,18 @@ export const createCV = async (req, res, next) => {
       sections,
     } = req.body;
 
-    // If a templateId is provided, copy the template's default sections
-    let defaultSections = sections;
-    if (templateId && !sections) {
-      const template = await Template.findById(templateId);
-      if (!template) {
-        return res
-          .status(404)
-          .json({ success: false, message: 'Template not found' });
-      }
-      defaultSections = template.sections ?? [];
-    }
-
     const cv = await CV.create({
       userId: req.user._id,
       cvTitle,
       templateId,
       status,
-      personalInfo,
-      educations,
-      experiences,
-      skills,
-      projects,
-      certifications,
-      sections: defaultSections ?? [],
+      personalInfo: personalInfo ?? {},
+      educations: educations ?? [],
+      experiences: experiences ?? [],
+      skills: skills ?? [],
+      projects: projects ?? [],
+      certifications: certifications ?? [],
+      sections: sections ?? [],
     });
 
     res.status(201).json({ success: true, data: cv });
@@ -56,9 +43,9 @@ export const createCV = async (req, res, next) => {
 // @access  Private
 export const getAllCVs = async (req, res, next) => {
   try {
-    const cvs = await CV.find({ userId: req.user._id })
-      .populate('templateId', 'name category thumbnailUrl')
-      .sort({ updatedAt: -1 });
+    const cvs = await CV.find({ userId: req.user._id }).sort({
+      updatedAt: -1,
+    });
 
     res.status(200).json({ success: true, count: cvs.length, data: cvs });
   } catch (error) {
@@ -71,10 +58,7 @@ export const getAllCVs = async (req, res, next) => {
 // @access  Private
 export const getCVById = async (req, res, next) => {
   try {
-    const cv = await CV.findById(req.params.id).populate(
-      'templateId',
-      'name category thumbnailUrl sections',
-    );
+    const cv = await CV.findById(req.params.id);
 
     if (!cv) {
       return res.status(404).json({ success: false, message: 'CV not found' });
@@ -107,10 +91,20 @@ export const updateCV = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
+    if (
+      req.body.templateId !== undefined &&
+      req.body.templateId.toString() !== cv.templateId.toString()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Template cannot be changed for an existing CV. Please create a new CV with the desired template.',
+      });
+    }
+
     // Update only the fields provided in the request body
     const allowedFields = [
       'cvTitle',
-      'templateId',
       'status',
       'personalInfo',
       'educations',

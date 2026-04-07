@@ -1,11 +1,49 @@
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import connectDB from '../config/db.js';
 
 // Import all models
-import { User, CV, Template, AiLog, Subscription } from '../models/index.js';
+import { User, CV, AiLog, Subscription } from '../models/index.js';
 
 dotenv.config();
+
+const defaultSections = [
+  {
+    sectionKey: 'personalInfo',
+    displayName: 'Personal Information',
+    order: 0,
+    isVisible: true,
+  },
+  {
+    sectionKey: 'experiences',
+    displayName: 'Experience',
+    order: 1,
+    isVisible: true,
+  },
+  {
+    sectionKey: 'educations',
+    displayName: 'Education',
+    order: 2,
+    isVisible: true,
+  },
+  {
+    sectionKey: 'skills',
+    displayName: 'Skills',
+    order: 3,
+    isVisible: true,
+  },
+  {
+    sectionKey: 'projects',
+    displayName: 'Projects',
+    order: 4,
+    isVisible: true,
+  },
+  {
+    sectionKey: 'certifications',
+    displayName: 'Certifications',
+    order: 5,
+    isVisible: true,
+  },
+];
 
 const seedDummyData = async () => {
   try {
@@ -34,42 +72,33 @@ const seedDummyData = async () => {
     await CV.findOneAndUpdate(
       { userId: dummyUser._id },
       {
-        cvName: 'Dummy CV',
-        templateId: new mongoose.Types.ObjectId(), // Fake ID just for structure
+        cvTitle: 'Dummy CV',
+        templateId: 'modern-focus',
+        status: 'draft',
         personalInfo: {
-          firstName: 'Dummy',
-          lastName: 'User',
+          fullName: 'Dummy User',
           email: 'dummy@example.com',
+          jobTitle: 'Backend Developer',
         },
-        experience: [],
-        education: [],
+        educations: [],
+        experiences: [],
         skills: [],
+        projects: [],
+        certifications: [],
+        sections: defaultSections,
       },
-      { upsert: true },
+      { upsert: true, runValidators: true },
     );
     console.log('Dummy CV inserted.');
 
-    // 3. Seed dummy Template
-    await Template.findOneAndUpdate(
-      { name: 'Dummy Template' },
-      {
-        description: 'A mock template for database schema inference',
-        thumbnailUrl: 'https://example.com/dummy.png',
-        htmlStructure: '<div>Dummy</div>',
-        cssStyles: '.dummy {}',
-        isPremium: false,
-      },
-      { upsert: true },
-    );
-    console.log('Dummy Template inserted.');
-
     // 4. Seed dummy AiLog
     await AiLog.findOneAndUpdate(
-      { userId: dummyUser._id },
+      { userId: dummyUser._id, promptType: 'summary_generation' },
       {
-        actionType: 'generate_summary',
-        promptUsed: 'Write a dummy summary',
-        responseReceived: 'This is a dummy summary.',
+        promptType: 'summary_generation',
+        provider: 'gemini',
+        inputText: 'Write a dummy summary',
+        responseText: 'This is a dummy summary.',
         tokensUsed: 10,
       },
       { upsert: true },
@@ -82,8 +111,9 @@ const seedDummyData = async () => {
       {
         plan: 'free',
         status: 'active',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(),
+        aiRequestLimit: 5,
+        startDate: new Date(),
+        endDate: null,
       },
       { upsert: true },
     );

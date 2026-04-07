@@ -81,6 +81,7 @@ const router = express.Router();
  *             type: object
  *             required:
  *               - cvTitle
+ *               - templateId
  *             properties:
  *               cvTitle:
  *                 type: string

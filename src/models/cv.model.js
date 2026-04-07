@@ -87,8 +87,8 @@ const cvSchema = new mongoose.Schema(
       index: true,
     },
     templateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Template',
+      type: String,
+      required: true,
     },
     cvTitle: {
       type: String,
