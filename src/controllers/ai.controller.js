@@ -11,12 +11,18 @@ export const getSuggestion = async (req, res, next) => {
       draftText,
       tone,
     );
-    
+
     // Map section to promptType for logging
     let promptType = 'other';
     const s = section.toLowerCase();
-    if (s.includes('summary') || s.includes('overview') || s.includes('personalinfo')) promptType = 'summary_generation';
-    else if (s.includes('experience') || s.includes('project')) promptType = 'experience_rewrite';
+    if (
+      s.includes('summary') ||
+      s.includes('overview') ||
+      s.includes('personalinfo')
+    )
+      promptType = 'summary_generation';
+    else if (s.includes('experience') || s.includes('project'))
+      promptType = 'experience_rewrite';
     else if (s.includes('skill')) promptType = 'skill_suggestion';
 
     // Save AI Log to database
