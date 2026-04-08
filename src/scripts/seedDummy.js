@@ -105,7 +105,6 @@ const seedDummyData = async () => {
     );
     console.log('Dummy AiLog inserted.');
 
-
     console.log(
       '\nDummy data seeded successfully! You should now be able to see the attributes in your MongoDB visualizer.',
     );
