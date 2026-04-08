@@ -50,7 +50,10 @@ Output ONLY the raw suggested text without any conversational filler, markdown f
   try {
     const result = await model.generateContent(fullPrompt);
     const response = await result.response;
-    return response.text().trim();
+    return {
+      text: response.text().trim(),
+      tokensUsed: response.usageMetadata?.totalTokenCount || 0,
+    };
   } catch (error) {
     console.error('Error in generateCVSuggestion:', error);
     throw new Error('Failed to generate AI suggestion: ' + error.message);

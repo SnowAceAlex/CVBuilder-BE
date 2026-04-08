@@ -39,4 +39,7 @@ const aiLogSchema = new mongoose.Schema(
   },
 );
 
+// TTL index to automatically delete logs after 7 days (604800 seconds)
+aiLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 7 });
+
 export default mongoose.model('AiLog', aiLogSchema);
