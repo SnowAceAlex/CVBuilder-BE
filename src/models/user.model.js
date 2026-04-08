@@ -30,16 +30,6 @@ const userSchema = new mongoose.Schema(
     address: { type: String, trim: true },
     jobTitle: { type: String, trim: true },
     summary: { type: String, trim: true },
-
-    // Subscription tracking (quick-access fields)
-    subscriptionPlan: {
-      type: String,
-      enum: ['free', 'pro', 'premium'],
-      default: 'free',
-    },
-    subscriptionExpiresAt: { type: Date, default: null },
-    aiUsageCount: { type: Number, default: 0 },
-    aiUsageResetAt: { type: Date, default: Date.now },
   },
   { timestamps: true },
 );

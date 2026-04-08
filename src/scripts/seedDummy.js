@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import connectDB from '../config/db.js';
 
 // Import all models
-import { User, CV, AiLog, Subscription } from '../models/index.js';
+import { User, CV, AiLog } from '../models/index.js';
 
 dotenv.config();
 
@@ -105,19 +105,6 @@ const seedDummyData = async () => {
     );
     console.log('Dummy AiLog inserted.');
 
-    // 5. Seed dummy Subscription
-    await Subscription.findOneAndUpdate(
-      { userId: dummyUser._id },
-      {
-        plan: 'free',
-        status: 'active',
-        aiRequestLimit: 5,
-        startDate: new Date(),
-        endDate: null,
-      },
-      { upsert: true },
-    );
-    console.log('Dummy Subscription inserted.');
 
     console.log(
       '\nDummy data seeded successfully! You should now be able to see the attributes in your MongoDB visualizer.',

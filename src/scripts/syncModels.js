@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import connectDB from '../config/db.js';
 
 // Import all models
-import { User, CV, AiLog, Subscription } from '../models/index.js';
+import { User, CV, AiLog } from '../models/index.js';
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +19,6 @@ const syncModels = async () => {
       { name: 'User', model: User },
       { name: 'CV', model: CV },
       { name: 'AiLog', model: AiLog },
-      { name: 'Subscription', model: Subscription },
     ];
 
     for (const { name, model } of models) {
