@@ -15,6 +15,7 @@ export const createCV = async (req, res, next) => {
       skills,
       projects,
       certifications,
+      languages,
       sections,
     } = req.body;
 
@@ -29,6 +30,7 @@ export const createCV = async (req, res, next) => {
       skills: skills ?? [],
       projects: projects ?? [],
       certifications: certifications ?? [],
+      languages: languages ?? [],
       sections: sections ?? [],
     });
 
@@ -112,6 +114,7 @@ export const updateCV = async (req, res, next) => {
       'skills',
       'projects',
       'certifications',
+      'languages',
       'sections',
     ];
 
@@ -544,6 +547,82 @@ export const deleteCertification = async (req, res, next) => {
     res
       .status(200)
       .json({ success: true, message: 'Certification deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Add a language entry into languages array
+// @route   POST /api/cv/:id/languages
+// @access  Private
+export const addLanguage = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    cv.languages.push(req.body);
+    await cv.save();
+
+    const newLanguage = cv.languages[cv.languages.length - 1];
+    res.status(201).json({ success: true, data: newLanguage });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Edit a language entry in languages array
+// @route   PUT /api/cv/:id/languages/:langId
+// @access  Private
+export const editLanguage = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const language = cv.languages.id(req.params.langId);
+    if (!language) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Language not found' });
+    }
+
+    Object.assign(language, req.body);
+    await cv.save();
+
+    res.status(200).json({ success: true, data: language });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a language entry from languages array
+// @route   DELETE /api/cv/:id/languages/:langId
+// @access  Private
+export const deleteLanguage = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    const language = cv.languages.id(req.params.langId);
+    if (!language) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Language not found' });
+    }
+
+    cv.languages.pull(req.params.langId);
+    await cv.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Language deleted successfully' });
   } catch (error) {
     next(error);
   }

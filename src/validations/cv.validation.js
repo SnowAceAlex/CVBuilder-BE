@@ -5,6 +5,11 @@ import { z } from 'zod';
 
 // ── Sub-schemas (mirror cv.model.js) ──
 
+export const socialLinkSchema = z.object({
+  platform: z.string().trim().min(1, 'Platform name is required'),
+  url: z.string().trim().url('Invalid URL'),
+});
+
 export const personalInfoSchema = z
   .object({
     fullName: z.string().trim().optional(),
@@ -13,6 +18,7 @@ export const personalInfoSchema = z
     address: z.string().trim().optional(),
     jobTitle: z.string().trim().optional(),
     summary: z.string().trim().optional(),
+    socialLinks: z.array(socialLinkSchema).optional(),
   })
   .optional();
 
@@ -104,6 +110,17 @@ export const certificationUpdateSchema = certificationSchema
     message: 'At least one certification field is required',
   });
 
+export const languageSchema = z.object({
+  languageName: z.string().trim().min(1, 'Language name is required'),
+  level: z.string().trim().optional(),
+});
+
+export const languageUpdateSchema = languageSchema
+  .partial()
+  .refine((val) => Object.keys(val).length > 0, {
+    message: 'At least one language field is required',
+  });
+
 export const sectionSchema = z.object({
   sectionKey: z.enum([
     'personalInfo',
@@ -112,6 +129,7 @@ export const sectionSchema = z.object({
     'skills',
     'projects',
     'certifications',
+    'languages',
   ]),
   displayName: z.string().trim().min(1, 'Display name is required'),
   order: z.number().int().min(0),
@@ -134,6 +152,7 @@ export const createCVSchema = z.object({
   skills: z.array(skillSchema).optional(),
   projects: z.array(projectSchema).optional(),
   certifications: z.array(certificationSchema).optional(),
+  languages: z.array(languageSchema).optional(),
   sections: z.array(sectionSchema).optional(),
 });
 

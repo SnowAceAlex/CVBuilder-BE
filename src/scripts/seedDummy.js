@@ -43,6 +43,12 @@ const defaultSections = [
     order: 5,
     isVisible: true,
   },
+  {
+    sectionKey: 'languages',
+    displayName: 'Languages',
+    order: 6,
+    isVisible: true,
+  },
 ];
 
 const seedDummyData = async () => {
@@ -79,12 +85,17 @@ const seedDummyData = async () => {
           fullName: 'Dummy User',
           email: 'dummy@example.com',
           jobTitle: 'Backend Developer',
+          socialLinks: [
+            { platform: 'LinkedIn', url: 'https://linkedin.com/in/dummy' },
+            { platform: 'GitHub', url: 'https://github.com/dummy' },
+          ],
         },
         educations: [],
         experiences: [],
         skills: [],
         projects: [],
         certifications: [],
+        languages: [],
         sections: defaultSections,
       },
       { upsert: true, runValidators: true },

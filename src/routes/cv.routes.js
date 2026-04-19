@@ -22,6 +22,9 @@ import {
   addCertification,
   editCertification,
   deleteCertification,
+  addLanguage,
+  editLanguage,
+  deleteLanguage,
   updateSections,
 } from '../controllers/cv.controller.js';
 import {
@@ -38,6 +41,8 @@ import {
   projectUpdateSchema,
   certificationSchema,
   certificationUpdateSchema,
+  languageSchema,
+  languageUpdateSchema,
   sectionsUpdateSchema,
   validate,
 } from '../validations/cv.validation.js';
@@ -61,6 +66,8 @@ const router = express.Router();
  *     description: CV Projects section
  *   - name: Certifications
  *     description: CV Certifications section
+ *   - name: Languages
+ *     description: CV Languages section
  *   - name: Sections
  *     description: CV Sections ordering and visibility
  */
@@ -108,6 +115,15 @@ const router = express.Router();
  *                     type: string
  *                   summary:
  *                     type: string
+ *                   socialLinks:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         platform:
+ *                           type: string
+ *                         url:
+ *                           type: string
  *               educations:
  *                 type: array
  *                 items:
@@ -186,6 +202,15 @@ const router = express.Router();
  *                       format: date-time
  *                     url:
  *                       type: string
+ *               languages:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     languageName:
+ *                       type: string
+ *                     level:
+ *                       type: string
  *           example:
  *             cvTitle: Web Developer Fresher CV
  *             templateId: 69aa83f4ccd97e2226dc4ebe
@@ -197,6 +222,16 @@ const router = express.Router();
  *               address: 123 Sample Street, Ho Chi Minh City
  *               jobTitle: Software Engineer
  *               summary: Building modern web applications with JavaScript, React, and Node.js
+ *               socialLinks:
+ *                 - platform: LinkedIn
+ *                   url: https://linkedin.com/in/janedoe
+ *                 - platform: GitHub
+ *                   url: https://github.com/janedoe
+ *             languages:
+ *               - languageName: English
+ *                 level: Native
+ *               - languageName: Spanish
+ *                 level: Intermediate
  *     responses:
  *       201:
  *         description: CV created successfully
@@ -289,6 +324,8 @@ router.get('/:id', protect, getCVById);
  *                 type: array
  *               certifications:
  *                 type: array
+ *               languages:
+ *                 type: array
  *               sections:
  *                 type: array
  *           example:
@@ -302,6 +339,12 @@ router.get('/:id', protect, getCVById);
  *               address: 123 Sample Street, Ho Chi Minh City
  *               jobTitle: Software Engineer
  *               summary: Building modern web applications with JavaScript, React, and Node.js
+ *               socialLinks:
+ *                 - platform: LinkedIn
+ *                   url: https://linkedin.com/in/janedoe
+ *             languages:
+ *               - languageName: English
+ *                 level: Native
  *     responses:
  *       200:
  *         description: CV updated successfully
@@ -780,6 +823,20 @@ router.delete('/:id/skills/:skillId', protect, deleteSkill);
  *                 type: string
  *               summary:
  *                 type: string
+ *               socialLinks:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - platform
+ *                     - url
+ *                   properties:
+ *                     platform:
+ *                       type: string
+ *                       example: LinkedIn
+ *                     url:
+ *                       type: string
+ *                       example: https://linkedin.com/in/janedoe
  *     responses:
  *       200:
  *         description: Personal info updated successfully
@@ -1076,6 +1133,130 @@ router.delete('/:id/certifications/:certId', protect, deleteCertification);
 
 /**
  * @swagger
+ * /api/cv/{id}/languages:
+ *   post:
+ *     summary: Add a language entry to CV
+ *     tags: [Languages]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - languageName
+ *             properties:
+ *               languageName:
+ *                 type: string
+ *                 example: English
+ *               level:
+ *                 type: string
+ *                 example: Native
+ *     responses:
+ *       201:
+ *         description: Language added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.post('/:id/languages', protect, validate(languageSchema), addLanguage);
+
+/**
+ * @swagger
+ * /api/cv/{id}/languages/{langId}:
+ *   put:
+ *     summary: Update a language entry in CV
+ *     tags: [Languages]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: langId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Language entry ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               languageName:
+ *                 type: string
+ *                 example: Spanish
+ *               level:
+ *                 type: string
+ *                 example: Intermediate
+ *     responses:
+ *       200:
+ *         description: Language updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Language not found
+ */
+router.put(
+  '/:id/languages/:langId',
+  protect,
+  validate(languageUpdateSchema),
+  editLanguage,
+);
+
+/**
+ * @swagger
+ * /api/cv/{id}/languages/{langId}:
+ *   delete:
+ *     summary: Delete a language entry from CV
+ *     tags: [Languages]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *       - in: path
+ *         name: langId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Language entry ID
+ *     responses:
+ *       200:
+ *         description: Language deleted successfully
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV or Language not found
+ */
+router.delete('/:id/languages/:langId', protect, deleteLanguage);
+
+/**
+ * @swagger
  * /api/cv/{id}/sections:
  *   put:
  *     summary: Update CV sections ordering/visibility
@@ -1100,7 +1281,7 @@ router.delete('/:id/certifications/:certId', protect, deleteCertification);
  *               properties:
  *                 sectionKey:
  *                   type: string
- *                   enum: [personalInfo, educations, experiences, skills, projects, certifications]
+ *                   enum: [personalInfo, educations, experiences, skills, projects, certifications, languages]
  *                 displayName:
  *                   type: string
  *                 order:
