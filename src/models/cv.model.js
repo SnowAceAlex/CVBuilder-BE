@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 // ── Embedded Sub-Schemas ──
 
+const socialLinkSchema = new mongoose.Schema({
+  platform: { type: String, required: true, trim: true },
+  url: { type: String, required: true, trim: true },
+});
+
 const personalInfoSchema = new mongoose.Schema(
   {
     fullName: { type: String, trim: true },
@@ -10,6 +15,7 @@ const personalInfoSchema = new mongoose.Schema(
     address: { type: String, trim: true },
     jobTitle: { type: String, trim: true },
     summary: { type: String, trim: true },
+    socialLinks: [socialLinkSchema],
   },
   { _id: false },
 );
@@ -55,6 +61,11 @@ const certificationSchema = new mongoose.Schema({
   url: { type: String, trim: true },
 });
 
+const languageSchema = new mongoose.Schema({
+  languageName: { type: String, required: true, trim: true },
+  level: { type: String, trim: true },
+});
+
 const sectionSchema = new mongoose.Schema(
   {
     sectionKey: {
@@ -67,6 +78,7 @@ const sectionSchema = new mongoose.Schema(
         'skills',
         'projects',
         'certifications',
+        'languages',
       ],
     },
     displayName: { type: String, required: true },
@@ -109,6 +121,7 @@ const cvSchema = new mongoose.Schema(
     skills: [skillSchema],
     projects: [projectSchema],
     certifications: [certificationSchema],
+    languages: [languageSchema],
 
     // Section ordering for drag-and-drop
     sections: [sectionSchema],
