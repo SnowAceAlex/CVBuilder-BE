@@ -1,4 +1,8 @@
 import CV from '../models/cv.model.js';
+import {
+  uploadAvatar as uploadToCloudinary,
+  deleteAvatar as deleteFromCloudinary,
+} from '../services/cloudinary.service.js';
 
 // @desc    Create a new CV
 // @route   POST /api/cv
@@ -146,6 +150,13 @@ export const deleteCV = async (req, res, next) => {
     // Ownership guard
     if (cv.userId.toString() !== req.user._id.toString()) {
       return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    // Clean up Cloudinary avatar if present
+    if (cv.personalInfo?.avatarPublicId) {
+      await deleteFromCloudinary(cv.personalInfo.avatarPublicId).catch(
+        () => {},
+      );
     }
 
     await cv.deleteOne();
@@ -643,6 +654,77 @@ export const updateSections = async (req, res, next) => {
     await cv.save();
 
     res.status(200).json({ success: true, data: cv.sections });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload or replace avatar image
+// @route   POST /api/cv/:id/avatar
+// @access  Private
+export const uploadCVAvatar = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'No image file provided' });
+    }
+
+    // Delete old avatar from Cloudinary if replacing
+    if (cv.personalInfo?.avatarPublicId) {
+      await deleteFromCloudinary(cv.personalInfo.avatarPublicId).catch(
+        () => {},
+      );
+    }
+
+    const { url, publicId } = await uploadToCloudinary(
+      req.file.buffer,
+      req.user._id.toString(),
+    );
+
+    if (!cv.personalInfo) cv.personalInfo = {};
+    cv.personalInfo.avatarUrl = url;
+    cv.personalInfo.avatarPublicId = publicId;
+    await cv.save();
+
+    res.status(200).json({ success: true, data: cv.personalInfo });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete avatar image
+// @route   DELETE /api/cv/:id/avatar
+// @access  Private
+export const deleteCVAvatar = async (req, res, next) => {
+  try {
+    const cv = await CV.findById(req.params.id);
+
+    if (!cv || cv.userId.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ success: false, message: 'CV not found' });
+    }
+
+    if (!cv.personalInfo?.avatarPublicId) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'No avatar to delete' });
+    }
+
+    await deleteFromCloudinary(cv.personalInfo.avatarPublicId);
+
+    cv.personalInfo.avatarUrl = undefined;
+    cv.personalInfo.avatarPublicId = undefined;
+    await cv.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: 'Avatar deleted successfully' });
   } catch (error) {
     next(error);
   }

@@ -15,6 +15,8 @@ const personalInfoSchema = new mongoose.Schema(
     address: { type: String, trim: true },
     jobTitle: { type: String, trim: true },
     summary: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true },
+    avatarPublicId: { type: String, trim: true },
     socialLinks: [socialLinkSchema],
   },
   { _id: false },

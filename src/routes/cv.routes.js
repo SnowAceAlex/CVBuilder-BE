@@ -26,7 +26,10 @@ import {
   editLanguage,
   deleteLanguage,
   updateSections,
+  uploadCVAvatar,
+  deleteCVAvatar,
 } from '../controllers/cv.controller.js';
+import { uploadSingle } from '../middlewares/upload.middleware.js';
 import {
   createCVSchema,
   educationSchema,
@@ -56,6 +59,8 @@ const router = express.Router();
  *     description: Core CV management (CRUD)
  *   - name: Personal Info
  *     description: CV Personal Information section
+ *   - name: Avatar
+ *     description: CV Avatar image upload and management
  *   - name: Educations
  *     description: CV Educations section
  *   - name: Experiences
@@ -1304,5 +1309,72 @@ router.put(
   validate(sectionsUpdateSchema),
   updateSections,
 );
+
+/**
+ * @swagger
+ * /api/cv/{id}/avatar:
+ *   post:
+ *     summary: Upload or replace avatar image
+ *     tags: [Avatar]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - avatar
+ *             properties:
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file (JPEG, PNG, or WebP, max 2 MB)
+ *     responses:
+ *       200:
+ *         description: Avatar uploaded successfully, returns updated personalInfo
+ *       400:
+ *         description: No file provided or invalid file type
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.post('/:id/avatar', protect, uploadSingle, uploadCVAvatar);
+
+/**
+ * @swagger
+ * /api/cv/{id}/avatar:
+ *   delete:
+ *     summary: Delete avatar image
+ *     tags: [Avatar]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The CV ID
+ *     responses:
+ *       200:
+ *         description: Avatar deleted successfully
+ *       400:
+ *         description: No avatar to delete
+ *       401:
+ *         description: Not authorized
+ *       404:
+ *         description: CV not found
+ */
+router.delete('/:id/avatar', protect, deleteCVAvatar);
 
 export default router;
