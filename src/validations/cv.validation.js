@@ -18,6 +18,8 @@ export const personalInfoSchema = z
     address: z.string().trim().optional(),
     jobTitle: z.string().trim().optional(),
     summary: z.string().trim().optional(),
+    avatarUrl: z.string().trim().url('Invalid avatar URL').optional(),
+    avatarPublicId: z.string().trim().optional(),
     socialLinks: z.array(socialLinkSchema).optional(),
   })
   .optional();
