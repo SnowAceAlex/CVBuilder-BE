@@ -8,6 +8,14 @@ import {
   logout,
   googleCallback,
   githubCallback,
+  getProfile,
+  updateProfile,
+  addExperience,
+  updateExperience,
+  deleteExperience,
+  addEducation,
+  updateEducation,
+  deleteEducation,
 } from '../controllers/auth.controller.js';
 
 const router = express.Router();
@@ -148,25 +156,240 @@ router.post('/logout', logout);
 
 /**
  * @swagger
- * /api/auth/me:
+ * /api/auth/profile:
  *   get:
- *     summary: Get current authenticated user
- *     tags: [Auth]
+ *     summary: Get current authenticated user's profile
+ *     tags: [Profile]
  *     security:
  *       - bearerAuth: []
+ *     description: |
+ *       Returns the authenticated user's profile. Optional scalar fields that are
+ *       empty will be returned as the string `"Not provided"`. Empty arrays
+ *       (`experiences`, `educations`) are returned as `[]`.
  *     responses:
  *       200:
- *         description: Current user data
+ *         description: Current user's profile
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *   put:
+ *     summary: Update current authenticated user's profile
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 example: Jane Doe
+ *               phone:
+ *                 type: string
+ *                 example: "+84 912 345 678"
+ *               address:
+ *                 type: string
+ *                 example: Ho Chi Minh City, Vietnam
+ *               jobTitle:
+ *                 type: string
+ *                 example: Full-stack Developer
+ *               summary:
+ *                 type: string
+ *                 example: Short bio about the user.
+ *               website:
+ *                 type: string
+ *                 example: https://janedoe.dev
+ *               birthday:
+ *                 type: string
+ *                 format: date
+ *                 example: "1998-07-21"
+ *               gender:
+ *                 type: string
+ *                 enum: [Male, Female, Other, Prefer not to say]
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       400:
+ *         description: Validation error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/MeResponse'
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.get('/me', protect, async (req, res) => {
-  res.status(200).json({ success: true, user: req.user });
-});
+router.get('/profile', protect, getProfile);
+router.put('/profile', protect, updateProfile);
+
+/**
+ * @swagger
+ * /api/auth/profile/experiences:
+ *   post:
+ *     summary: Add a new experience entry
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [companyName, position]
+ *             properties:
+ *               companyName: { type: string, example: Acme Corp }
+ *               position: { type: string, example: Software Engineer }
+ *               startDate: { type: string, format: date, example: "2023-01-01" }
+ *               endDate: { type: string, format: date, example: "2024-06-01" }
+ *     responses:
+ *       201:
+ *         description: Experience added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post('/profile/experiences', protect, addExperience);
+
+/**
+ * @swagger
+ * /api/auth/profile/experiences/{id}:
+ *   put:
+ *     summary: Update an experience entry by id
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               companyName: { type: string }
+ *               position: { type: string }
+ *               startDate: { type: string, format: date }
+ *               endDate: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Experience updated successfully
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Experience not found
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *   delete:
+ *     summary: Delete an experience entry by id
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Experience deleted successfully
+ *       404:
+ *         description: Experience not found
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.put('/profile/experiences/:id', protect, updateExperience);
+router.delete('/profile/experiences/:id', protect, deleteExperience);
+
+/**
+ * @swagger
+ * /api/auth/profile/educations:
+ *   post:
+ *     summary: Add a new education entry
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [schoolName]
+ *             properties:
+ *               schoolName: { type: string, example: HCMUT }
+ *               major: { type: string, example: Computer Science }
+ *               startDate: { type: string, format: date, example: "2018-09-01" }
+ *               endDate: { type: string, format: date, example: "2022-06-01" }
+ *     responses:
+ *       201:
+ *         description: Education added successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post('/profile/educations', protect, addEducation);
+
+/**
+ * @swagger
+ * /api/auth/profile/educations/{id}:
+ *   put:
+ *     summary: Update an education entry by id
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               schoolName: { type: string }
+ *               major: { type: string }
+ *               startDate: { type: string, format: date }
+ *               endDate: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Education updated successfully
+ *       400:
+ *         description: Validation error
+ *       404:
+ *         description: Education not found
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *   delete:
+ *     summary: Delete an education entry by id
+ *     tags: [Profile]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Education deleted successfully
+ *       404:
+ *         description: Education not found
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.put('/profile/educations/:id', protect, updateEducation);
+router.delete('/profile/educations/:id', protect, deleteEducation);
 
 // OAuth Placeholders
 /**

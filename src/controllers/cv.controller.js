@@ -1,8 +1,5 @@
 import CV from '../models/cv.model.js';
-import {
-  uploadAvatar as uploadToCloudinary,
-  deleteAvatar as deleteFromCloudinary,
-} from '../services/cloudinary.service.js';
+import { deleteAvatar as deleteFromCloudinary } from '../services/cloudinary.service.js';
 
 // @desc    Create a new CV
 // @route   POST /api/cv
@@ -659,7 +656,9 @@ export const updateSections = async (req, res, next) => {
   }
 };
 
-// @desc    Upload or replace avatar image
+// @desc    Attach an already-uploaded avatar URL to the CV.
+//          The file must have been uploaded via POST /api/upload/avatar first;
+//          the caller passes the returned `url` (and optional `publicId`) here.
 // @route   POST /api/cv/:id/avatar
 // @access  Private
 export const uploadCVAvatar = async (req, res, next) => {
@@ -670,27 +669,24 @@ export const uploadCVAvatar = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
-    if (!req.file) {
+    const { url, publicId } = req.body || {};
+
+    if (!url || typeof url !== 'string' || !url.trim()) {
       return res
         .status(400)
-        .json({ success: false, message: 'No image file provided' });
+        .json({ success: false, message: 'url is required' });
     }
 
-    // Delete old avatar from Cloudinary if replacing
-    if (cv.personalInfo?.avatarPublicId) {
-      await deleteFromCloudinary(cv.personalInfo.avatarPublicId).catch(
-        () => {},
-      );
+    // Clean up the previous Cloudinary asset (if any) before swapping to the new one.
+    const previousPublicId = cv.personalInfo?.avatarPublicId;
+    if (previousPublicId && previousPublicId !== publicId) {
+      await deleteFromCloudinary(previousPublicId).catch(() => {});
     }
-
-    const { url, publicId } = await uploadToCloudinary(
-      req.file.buffer,
-      req.user._id.toString(),
-    );
 
     if (!cv.personalInfo) cv.personalInfo = {};
-    cv.personalInfo.avatarUrl = url;
-    cv.personalInfo.avatarPublicId = publicId;
+    cv.personalInfo.avatarUrl = url.trim();
+    cv.personalInfo.avatarPublicId =
+      typeof publicId === 'string' && publicId.trim() ? publicId.trim() : undefined;
     await cv.save();
 
     res.status(200).json({ success: true, data: cv.personalInfo });
