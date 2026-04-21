@@ -38,6 +38,27 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *             example:
+ *               success: true
+ *               accessToken: "eyJhbGciOiJIUzI1Ni..."
+ *               user:
+ *                 id: "65f1a2b3c4d5e6f7a8b9c0d1"
+ *                 email: "jane.doe@example.com"
+ *                 firstName: "Jane"
+ *                 lastName: "Doe"
+ *       400:
+ *         $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/register', register);
 
@@ -64,6 +85,19 @@ router.post('/register', register);
  *     responses:
  *       200:
  *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/login', login);
 
@@ -76,6 +110,17 @@ router.post('/login', login);
  *     responses:
  *       200:
  *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *       401:
+ *         $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/refresh', refresh);
 
@@ -88,6 +133,13 @@ router.post('/refresh', refresh);
  *     responses:
  *       200:
  *         description: User logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *             example:
+ *               success: true
+ *               message: "Logged out successfully"
  */
 router.post('/logout', logout);
 
@@ -102,6 +154,15 @@ router.post('/logout', logout);
  *     responses:
  *       200:
  *         description: Current user data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
  */
 router.get('/me', protect, async (req, res) => {
   res.status(200).json({ success: true, user: req.user });

@@ -240,10 +240,42 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: CV created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/CV'
+ *             example:
+ *               success: true
+ *               data:
+ *                 _id: "65f1a2b3c4d5e6f7a8b9c0d1"
+ *                 cvTitle: "Web Developer Fresher CV"
+ *                 status: "draft"
+ *                 personalInfo:
+ *                   fullName: "Jane Doe"
+ *                   email: "jane.doe@example.com"
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "\"cvTitle\" is required"
  *       401:
  *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Not authorized to access this route"
  */
 router.post('/', protect, validate(createCVSchema), createCV);
 
@@ -258,8 +290,39 @@ router.post('/', protect, validate(createCVSchema), createCV);
  *     responses:
  *       200:
  *         description: List of user's CVs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/PaginatedResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/CV'
+ *             example:
+ *               success: true
+ *               count: 1
+ *               data:
+ *                 - _id: "65f1a2b3c4d5e6f7a8b9c0d1"
+ *                   cvTitle: "Web Developer CV"
+ *                   templateId:
+ *                     _id: "65f1a2b3c4d5e6f7a8b9c0d2"
+ *                     name: "Modern Professional"
+ *                     category: "professional"
+ *                     thumbnailUrl: "/templates/modern.png"
+ *                   status: "draft"
+ *                   updatedAt: "2024-03-13T10:00:00Z"
  *       401:
  *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "Not authorized"
  */
 router.get('/', protect, getAllCVs);
 
@@ -281,10 +344,40 @@ router.get('/', protect, getAllCVs);
  *     responses:
  *       200:
  *         description: CV details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/CV'
+ *             example:
+ *               success: true
+ *               data:
+ *                 _id: "65f1a2b3c4d5e6f7a8b9c0d1"
+ *                 cvTitle: "Web Developer CV"
+ *                 personalInfo:
+ *                   fullName: "Jane Doe"
+ *                 educations: []
+ *                 experiences: []
+ *                 skills: []
  *       401:
  *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       404:
  *         description: CV not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: "CV not found"
  */
 router.get('/:id', protect, getCVById);
 
@@ -353,8 +446,21 @@ router.get('/:id', protect, getCVById);
  *     responses:
  *       200:
  *         description: CV updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/CV'
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -380,6 +486,13 @@ router.put('/:id', protect, validate(updateCVSchema), updateCV);
  *     responses:
  *       200:
  *         description: CV deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *             example:
+ *               success: true
+ *               message: "CV deleted successfully"
  *       401:
  *         description: Not authorized
  *       404:
@@ -424,6 +537,15 @@ router.delete('/:id', protect, deleteCV);
  *     responses:
  *       201:
  *         description: Education added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Education'
  *       400:
  *         description: Validation error
  *       401:
@@ -483,6 +605,15 @@ router.post(
  *     responses:
  *       200:
  *         description: Education updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Education'
  *       400:
  *         description: Validation error
  *       401:
@@ -521,6 +652,10 @@ router.put(
  *     responses:
  *       200:
  *         description: Education deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -565,6 +700,15 @@ router.delete('/:id/educations/:eduId', protect, deleteEducation);
  *     responses:
  *       201:
  *         description: Experience added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Experience'
  *       400:
  *         description: Validation error
  *       401:
@@ -625,6 +769,15 @@ router.post(
  *     responses:
  *       200:
  *         description: Experience updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Experience'
  *       400:
  *         description: Validation error
  *       401:
@@ -663,6 +816,10 @@ router.put(
  *     responses:
  *       200:
  *         description: Experience deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -701,6 +858,15 @@ router.delete('/:id/experiences/:expId', protect, deleteExperience);
  *     responses:
  *       201:
  *         description: Skill added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Skill'
  *       400:
  *         description: Validation error
  *       401:
@@ -749,6 +915,15 @@ router.post('/:id/skills', protect, validate(skillSchema), addSkill);
  *     responses:
  *       200:
  *         description: Skill updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Skill'
  *       400:
  *         description: Validation error
  *       401:
@@ -787,6 +962,10 @@ router.put(
  *     responses:
  *       200:
  *         description: Skill deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -845,6 +1024,15 @@ router.delete('/:id/skills/:skillId', protect, deleteSkill);
  *     responses:
  *       200:
  *         description: Personal info updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/PersonalInfo'
  *       400:
  *         description: Validation error
  *       401:
@@ -898,6 +1086,15 @@ router.put(
  *     responses:
  *       201:
  *         description: Project added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Project'
  *       400:
  *         description: Validation error
  *       401:
@@ -950,6 +1147,15 @@ router.post('/:id/projects', protect, validate(projectSchema), addProject);
  *     responses:
  *       200:
  *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Project'
  *       400:
  *         description: Validation error
  *       401:
@@ -988,6 +1194,10 @@ router.put(
  *     responses:
  *       200:
  *         description: Project deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -1034,6 +1244,15 @@ router.delete('/:id/projects/:projectId', protect, deleteProject);
  *     responses:
  *       201:
  *         description: Certification added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Certification'
  *       400:
  *         description: Validation error
  *       401:
@@ -1091,6 +1310,15 @@ router.post(
  *     responses:
  *       200:
  *         description: Certification updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Certification'
  *       400:
  *         description: Validation error
  *       401:
@@ -1129,6 +1357,10 @@ router.put(
  *     responses:
  *       200:
  *         description: Certification deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
  *       401:
  *         description: Not authorized
  *       404:
@@ -1296,6 +1528,17 @@ router.delete('/:id/languages/:langId', protect, deleteLanguage);
  *     responses:
  *       200:
  *         description: Sections updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Section'
  *       400:
  *         description: Validation error
  *       401:
