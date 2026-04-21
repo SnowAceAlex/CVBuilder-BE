@@ -240,10 +240,14 @@ const router = express.Router();
  *     responses:
  *       201:
  *         description: CV created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CVResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.post('/', protect, validate(createCVSchema), createCV);
 
@@ -258,8 +262,12 @@ router.post('/', protect, validate(createCVSchema), createCV);
  *     responses:
  *       200:
  *         description: List of user's CVs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CVListResponse'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/', protect, getAllCVs);
 
@@ -281,10 +289,14 @@ router.get('/', protect, getAllCVs);
  *     responses:
  *       200:
  *         description: CV details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CVResponse'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.get('/:id', protect, getCVById);
 
@@ -353,12 +365,16 @@ router.get('/:id', protect, getCVById);
  *     responses:
  *       200:
  *         description: CV updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CVResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put('/:id', protect, validate(updateCVSchema), updateCV);
 
@@ -380,10 +396,14 @@ router.put('/:id', protect, validate(updateCVSchema), updateCV);
  *     responses:
  *       200:
  *         description: CV deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id', protect, deleteCV);
 
@@ -424,12 +444,16 @@ router.delete('/:id', protect, deleteCV);
  *     responses:
  *       201:
  *         description: Education added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EducationResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post(
   '/:id/educations',
@@ -483,12 +507,16 @@ router.post(
  *     responses:
  *       200:
  *         description: Education updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EducationResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Education not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/educations/:eduId',
@@ -521,10 +549,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Education deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Education not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/educations/:eduId', protect, deleteEducation);
 
@@ -565,12 +597,16 @@ router.delete('/:id/educations/:eduId', protect, deleteEducation);
  *     responses:
  *       201:
  *         description: Experience added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExperienceResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post(
   '/:id/experiences',
@@ -625,12 +661,16 @@ router.post(
  *     responses:
  *       200:
  *         description: Experience updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExperienceResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Experience not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/experiences/:expId',
@@ -663,10 +703,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Experience deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Experience not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/experiences/:expId', protect, deleteExperience);
 
@@ -701,12 +745,16 @@ router.delete('/:id/experiences/:expId', protect, deleteExperience);
  *     responses:
  *       201:
  *         description: Skill added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post('/:id/skills', protect, validate(skillSchema), addSkill);
 
@@ -749,12 +797,16 @@ router.post('/:id/skills', protect, validate(skillSchema), addSkill);
  *     responses:
  *       200:
  *         description: Skill updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SkillResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Skill not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/skills/:skillId',
@@ -787,10 +839,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Skill deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Skill not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/skills/:skillId', protect, deleteSkill);
 
@@ -845,12 +901,16 @@ router.delete('/:id/skills/:skillId', protect, deleteSkill);
  *     responses:
  *       200:
  *         description: Personal info updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PersonalInfoResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/personal-info',
@@ -898,12 +958,16 @@ router.put(
  *     responses:
  *       201:
  *         description: Project added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProjectResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post('/:id/projects', protect, validate(projectSchema), addProject);
 
@@ -950,12 +1014,16 @@ router.post('/:id/projects', protect, validate(projectSchema), addProject);
  *     responses:
  *       200:
  *         description: Project updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProjectResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Project not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/projects/:projectId',
@@ -988,10 +1056,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Project deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Project not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/projects/:projectId', protect, deleteProject);
 
@@ -1034,12 +1106,16 @@ router.delete('/:id/projects/:projectId', protect, deleteProject);
  *     responses:
  *       201:
  *         description: Certification added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CertificationResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post(
   '/:id/certifications',
@@ -1091,12 +1167,16 @@ router.post(
  *     responses:
  *       200:
  *         description: Certification updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CertificationResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Certification not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/certifications/:certId',
@@ -1129,10 +1209,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Certification deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Certification not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/certifications/:certId', protect, deleteCertification);
 
@@ -1169,12 +1253,16 @@ router.delete('/:id/certifications/:certId', protect, deleteCertification);
  *     responses:
  *       201:
  *         description: Language added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LanguageResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post('/:id/languages', protect, validate(languageSchema), addLanguage);
 
@@ -1215,12 +1303,16 @@ router.post('/:id/languages', protect, validate(languageSchema), addLanguage);
  *     responses:
  *       200:
  *         description: Language updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LanguageResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Language not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/languages/:langId',
@@ -1253,10 +1345,14 @@ router.put(
  *     responses:
  *       200:
  *         description: Language deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV or Language not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/languages/:langId', protect, deleteLanguage);
 
@@ -1296,12 +1392,16 @@ router.delete('/:id/languages/:langId', protect, deleteLanguage);
  *     responses:
  *       200:
  *         description: Sections updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SectionsResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.put(
   '/:id/sections',
@@ -1341,12 +1441,20 @@ router.put(
  *     responses:
  *       200:
  *         description: Avatar uploaded successfully, returns updated personalInfo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PersonalInfoResponse'
  *       400:
  *         description: No file provided or invalid file type
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.post('/:id/avatar', protect, uploadSingle, uploadCVAvatar);
 
@@ -1368,12 +1476,20 @@ router.post('/:id/avatar', protect, uploadSingle, uploadCVAvatar);
  *     responses:
  *       200:
  *         description: Avatar deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
  *       400:
  *         description: No avatar to delete
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       404:
- *         description: CV not found
+ *         $ref: '#/components/responses/NotFound'
  */
 router.delete('/:id/avatar', protect, deleteCVAvatar);
 
