@@ -33,15 +33,33 @@ const router = express.Router();
  *               tone:
  *                 type: string
  *                 example: "professional"
+ *               cvId:
+ *                 type: string
+ *                 description: Optional CV id, used for logging the AI request
+ *                 example: "69e6f4cfa2458e5c375ead20"
  *     responses:
  *       200:
  *         description: Suggestion generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AISuggestionResponse'
  *       400:
- *         description: Validation error
+ *         $ref: '#/components/responses/BadRequest'
  *       401:
- *         description: Not authorized
+ *         $ref: '#/components/responses/Unauthorized'
  *       500:
  *         description: AI Service error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       503:
+ *         description: AI provider not configured or API key invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/suggest', protect, validate(aiSuggestionSchema), getSuggestion);
 

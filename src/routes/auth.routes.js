@@ -31,34 +31,28 @@ const router = express.Router();
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
+ *                 example: jane.doe@example.com
  *               password:
  *                 type: string
+ *                 format: password
+ *                 example: StrongPass123!
  *               fullName:
  *                 type: string
+ *                 example: Jane Doe
  *     responses:
  *       201:
  *         description: User registered successfully
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *             example:
- *               success: true
- *               accessToken: "eyJhbGciOiJIUzI1Ni..."
- *               user:
- *                 id: "65f1a2b3c4d5e6f7a8b9c0d1"
- *                 email: "jane.doe@example.com"
- *                 firstName: "Jane"
- *                 lastName: "Doe"
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
- *         $ref: '#/components/schemas/ErrorResponse'
+ *         description: Validation error or email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/register', register);
 
@@ -80,24 +74,34 @@ router.post('/register', register);
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
+ *                 example: jane.doe@example.com
  *               password:
  *                 type: string
+ *                 format: password
+ *                 example: StrongPass123!
  *     responses:
  *       200:
  *         description: User logged in successfully
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       400:
+ *         description: Missing email or password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
- *         $ref: '#/components/schemas/ErrorResponse'
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               message: Invalid credentials
  */
 router.post('/login', login);
 
@@ -105,7 +109,7 @@ router.post('/login', login);
  * @swagger
  * /api/auth/refresh:
  *   post:
- *     summary: Refresh access token
+ *     summary: Refresh access token (reads httpOnly cookie `refreshToken`)
  *     tags: [Auth]
  *     responses:
  *       200:
@@ -113,14 +117,13 @@ router.post('/login', login);
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     accessToken:
- *                       type: string
+ *               $ref: '#/components/schemas/RefreshResponse'
  *       401:
- *         $ref: '#/components/schemas/ErrorResponse'
+ *         description: Missing or invalid refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/refresh', refresh);
 
@@ -128,7 +131,7 @@ router.post('/refresh', refresh);
  * @swagger
  * /api/auth/logout:
  *   post:
- *     summary: Logout user
+ *     summary: Logout user (clears refreshToken cookie)
  *     tags: [Auth]
  *     responses:
  *       200:
@@ -136,10 +139,10 @@ router.post('/refresh', refresh);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
+ *               $ref: '#/components/schemas/SuccessMessage'
  *             example:
  *               success: true
- *               message: "Logged out successfully"
+ *               message: Logged out successfully
  */
 router.post('/logout', logout);
 
@@ -157,12 +160,9 @@ router.post('/logout', logout);
  *         content:
  *           application/json:
  *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/SuccessResponse'
- *                 - type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/MeResponse'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/me', protect, async (req, res) => {
   res.status(200).json({ success: true, user: req.user });
@@ -198,10 +198,10 @@ router.get(
  *     tags: [Auth]
  *     description: |
  *       Handles the callback from Google after user authentication.
- *       On success, redirects to the frontend with a JWT access token in the `token` query parameter.
+ *       On success, redirects to `${CLIENT_URL}/login-success` with an httpOnly `accessToken` cookie set.
  *     responses:
  *       302:
- *         description: Redirects to frontend with JWT access token
+ *         description: Redirects to frontend login-success page
  */
 router.get(
   '/google/callback',
@@ -216,11 +216,11 @@ router.get(
  * @swagger
  * /api/auth/github:
  *   get:
- *     summary: Start github login
+ *     summary: Start GitHub OAuth login
  *     tags: [Auth]
  *     responses:
  *       302:
- *         description: Redirect user to github o-auth page
+ *         description: Redirect user to GitHub OAuth page
  */
 //OAuth github
 router.get(
@@ -235,7 +235,7 @@ router.get(
  * @swagger
  * /api/auth/github/callback:
  *   get:
- *     summary: callback process after gitHub oauth
+ *     summary: GitHub OAuth callback
  *     tags: [Auth]
  *     parameters:
  *       - in: query
@@ -244,10 +244,10 @@ router.get(
  *         schema:
  *           type: string
  *     responses:
- *       200:
- *         description: Return user information
  *       302:
- *         description: Redirect to Frontend
+ *         description: |
+ *           Redirects to `${CLIENT_URL}/login-success?token=<JWT>`.
+ *           The JWT is a 45-minute access token that the FE should store and send as `Authorization: Bearer <token>`.
  */
 
 router.get(
