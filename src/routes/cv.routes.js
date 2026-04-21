@@ -29,7 +29,6 @@ import {
   uploadCVAvatar,
   deleteCVAvatar,
 } from '../controllers/cv.controller.js';
-import { uploadSingle } from '../middlewares/upload.middleware.js';
 import {
   createCVSchema,
   educationSchema,
@@ -1414,8 +1413,13 @@ router.put(
  * @swagger
  * /api/cv/{id}/avatar:
  *   post:
- *     summary: Upload or replace avatar image
+ *     summary: Attach an uploaded avatar URL to the CV
  *     tags: [Avatar]
+ *     description: |
+ *       Saves an already-uploaded avatar URL to `cv.personalInfo`. The file itself
+ *       must be uploaded first via `POST /api/upload/avatar`, which returns
+ *       `{ url, publicId }`. Pass those values in the JSON body of this request.
+ *       If the CV already had an avatar, the previous Cloudinary asset is removed.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -1428,25 +1432,27 @@ router.put(
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - avatar
+ *             required: [url]
  *             properties:
- *               avatar:
+ *               url:
  *                 type: string
- *                 format: binary
- *                 description: Image file (JPEG, PNG, or WebP, max 2 MB)
+ *                 example: https://res.cloudinary.com/demo/image/upload/v123/cv-builder/avatars/abc.jpg
+ *               publicId:
+ *                 type: string
+ *                 description: Optional. Saved so the server can clean up the asset on replace/delete.
+ *                 example: cv-builder/avatars/66f.../abc
  *     responses:
  *       200:
- *         description: Avatar uploaded successfully, returns updated personalInfo
+ *         description: Avatar attached successfully, returns updated personalInfo
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PersonalInfoResponse'
  *       400:
- *         description: No file provided or invalid file type
+ *         description: Missing or invalid url
  *         content:
  *           application/json:
  *             schema:
@@ -1456,7 +1462,7 @@ router.put(
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.post('/:id/avatar', protect, uploadSingle, uploadCVAvatar);
+router.post('/:id/avatar', protect, uploadCVAvatar);
 
 /**
  * @swagger

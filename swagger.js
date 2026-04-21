@@ -12,6 +12,13 @@ const options = {
       { url: 'http://localhost:5000' },
       { url: 'https://cvbuilder-be-p5yh.onrender.com/' },
     ],
+    tags: [
+      { name: 'Auth', description: 'Authentication: register, login, logout, OAuth, tokens' },
+      { name: 'Profile', description: 'Authenticated user profile: basic info, experiences, educations' },
+      { name: 'CV', description: 'CV management endpoints' },
+      { name: 'Upload', description: 'Stateless file uploads (returns hosted URL)' },
+      { name: 'AI', description: 'AI-powered suggestions' },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

@@ -3,7 +3,106 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from '../utils/token.util.js';
+import { formatUserProfile } from '../utils/user.util.js';
 import jwt from 'jsonwebtoken';
+
+const ALLOWED_GENDERS = ['Male', 'Female', 'Other', 'Prefer not to say'];
+
+const parseOptionalDate = (value, fieldName) => {
+  if (value === null || value === undefined || value === '') return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    const err = new Error(`Invalid date for field "${fieldName}"`);
+    err.status = 400;
+    throw err;
+  }
+  return date;
+};
+
+const buildExperienceItem = (item, { partial = false, prefix = 'experience' } = {}) => {
+  if (!item || typeof item !== 'object') {
+    const err = new Error(`${prefix} body must be an object`);
+    err.status = 400;
+    throw err;
+  }
+
+  const result = {};
+
+  if (item.companyName !== undefined) {
+    const companyName = String(item.companyName || '').trim();
+    if (!companyName) {
+      const err = new Error(`${prefix}.companyName cannot be empty`);
+      err.status = 400;
+      throw err;
+    }
+    result.companyName = companyName;
+  } else if (!partial) {
+    const err = new Error(`${prefix}.companyName is required`);
+    err.status = 400;
+    throw err;
+  }
+
+  if (item.position !== undefined) {
+    const position = String(item.position || '').trim();
+    if (!position) {
+      const err = new Error(`${prefix}.position cannot be empty`);
+      err.status = 400;
+      throw err;
+    }
+    result.position = position;
+  } else if (!partial) {
+    const err = new Error(`${prefix}.position is required`);
+    err.status = 400;
+    throw err;
+  }
+
+  if (item.startDate !== undefined) {
+    result.startDate = parseOptionalDate(item.startDate, `${prefix}.startDate`);
+  }
+  if (item.endDate !== undefined) {
+    result.endDate = parseOptionalDate(item.endDate, `${prefix}.endDate`);
+  }
+
+  return result;
+};
+
+const buildEducationItem = (item, { partial = false, prefix = 'education' } = {}) => {
+  if (!item || typeof item !== 'object') {
+    const err = new Error(`${prefix} body must be an object`);
+    err.status = 400;
+    throw err;
+  }
+
+  const result = {};
+
+  if (item.schoolName !== undefined) {
+    const schoolName = String(item.schoolName || '').trim();
+    if (!schoolName) {
+      const err = new Error(`${prefix}.schoolName cannot be empty`);
+      err.status = 400;
+      throw err;
+    }
+    result.schoolName = schoolName;
+  } else if (!partial) {
+    const err = new Error(`${prefix}.schoolName is required`);
+    err.status = 400;
+    throw err;
+  }
+
+  if (item.major !== undefined) {
+    const major = String(item.major || '').trim();
+    result.major = major || undefined;
+  }
+
+  if (item.startDate !== undefined) {
+    result.startDate = parseOptionalDate(item.startDate, `${prefix}.startDate`);
+  }
+  if (item.endDate !== undefined) {
+    result.endDate = parseOptionalDate(item.endDate, `${prefix}.endDate`);
+  }
+
+  return result;
+};
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -160,6 +259,307 @@ export const logout = async (req, res, _next) => {
   });
 
   res.status(200).json({ success: true, message: 'Logged out successfully' });
+};
+
+// @desc    Get current authenticated user's profile
+// @route   GET /api/auth/profile
+// @access  Private
+export const getProfile = async (req, res) => {
+  res.status(200).json({ success: true, user: formatUserProfile(req.user) });
+};
+
+// @desc    Update current authenticated user's profile
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const {
+      fullName,
+      phone,
+      address,
+      jobTitle,
+      summary,
+      website,
+      birthday,
+      gender,
+    } = req.body;
+
+    if (fullName !== undefined) {
+      const trimmed = typeof fullName === 'string' ? fullName.trim() : '';
+      if (!trimmed) {
+        return res
+          .status(400)
+          .json({ success: false, message: 'fullName cannot be empty' });
+      }
+      user.fullName = trimmed;
+    }
+
+    if (phone !== undefined)
+      user.phone = phone === null || phone === '' ? undefined : String(phone).trim();
+    if (address !== undefined)
+      user.address =
+        address === null || address === '' ? undefined : String(address).trim();
+    if (jobTitle !== undefined)
+      user.jobTitle =
+        jobTitle === null || jobTitle === ''
+          ? undefined
+          : String(jobTitle).trim();
+    if (summary !== undefined)
+      user.summary =
+        summary === null || summary === '' ? undefined : String(summary).trim();
+    if (website !== undefined)
+      user.website =
+        website === null || website === '' ? undefined : String(website).trim();
+
+    if (birthday !== undefined) {
+      user.birthday = parseOptionalDate(birthday, 'birthday');
+    }
+
+    if (gender !== undefined) {
+      if (gender === null || gender === '') {
+        user.gender = null;
+      } else if (!ALLOWED_GENDERS.includes(gender)) {
+        return res.status(400).json({
+          success: false,
+          message: `gender must be one of: ${ALLOWED_GENDERS.join(', ')}`,
+        });
+      } else {
+        user.gender = gender;
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    if (error.status === 400) {
+      return res
+        .status(400)
+        .json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+// ── Experience item handlers ──
+
+// @desc    Add a new experience entry
+// @route   POST /api/auth/profile/experiences
+// @access  Private
+export const addExperience = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const payload = buildExperienceItem(req.body, { prefix: 'experience' });
+    user.experiences.push(payload);
+    await user.save();
+
+    const created = user.experiences[user.experiences.length - 1];
+    res.status(201).json({
+      success: true,
+      message: 'Experience added successfully',
+      experience: created,
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+// @desc    Update an experience entry by id
+// @route   PUT /api/auth/profile/experiences/:id
+// @access  Private
+export const updateExperience = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.experiences.id(req.params.id);
+    if (!item) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Experience not found' });
+    }
+
+    const updates = buildExperienceItem(req.body, {
+      partial: true,
+      prefix: 'experience',
+    });
+    Object.assign(item, updates);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Experience updated successfully',
+      experience: item,
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+// @desc    Delete an experience entry by id
+// @route   DELETE /api/auth/profile/experiences/:id
+// @access  Private
+export const deleteExperience = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.experiences.id(req.params.id);
+    if (!item) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Experience not found' });
+    }
+
+    item.deleteOne();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Experience deleted successfully',
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ── Education item handlers ──
+
+// @desc    Add a new education entry
+// @route   POST /api/auth/profile/educations
+// @access  Private
+export const addEducation = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const payload = buildEducationItem(req.body, { prefix: 'education' });
+    user.educations.push(payload);
+    await user.save();
+
+    const created = user.educations[user.educations.length - 1];
+    res.status(201).json({
+      success: true,
+      message: 'Education added successfully',
+      education: created,
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+// @desc    Update an education entry by id
+// @route   PUT /api/auth/profile/educations/:id
+// @access  Private
+export const updateEducation = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.educations.id(req.params.id);
+    if (!item) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Education not found' });
+    }
+
+    const updates = buildEducationItem(req.body, {
+      partial: true,
+      prefix: 'education',
+    });
+    Object.assign(item, updates);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Education updated successfully',
+      education: item,
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    next(error);
+  }
+};
+
+// @desc    Delete an education entry by id
+// @route   DELETE /api/auth/profile/educations/:id
+// @access  Private
+export const deleteEducation = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.educations.id(req.params.id);
+    if (!item) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Education not found' });
+    }
+
+    item.deleteOne();
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Education deleted successfully',
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // @desc    OAuth callback for GitHub

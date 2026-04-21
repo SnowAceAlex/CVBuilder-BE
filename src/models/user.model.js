@@ -1,6 +1,22 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+// ── Embedded Sub-Schemas ──
+
+const profileEducationSchema = new mongoose.Schema({
+  schoolName: { type: String, required: true, trim: true },
+  major: { type: String, trim: true },
+  startDate: { type: Date },
+  endDate: { type: Date },
+});
+
+const profileExperienceSchema = new mongoose.Schema({
+  companyName: { type: String, required: true, trim: true },
+  position: { type: String, required: true, trim: true },
+  startDate: { type: Date },
+  endDate: { type: Date },
+});
+
 const userSchema = new mongoose.Schema(
   {
     // Auth fields
@@ -32,6 +48,19 @@ const userSchema = new mongoose.Schema(
     address: { type: String, trim: true },
     jobTitle: { type: String, trim: true },
     summary: { type: String, trim: true },
+    website: { type: String, trim: true },
+
+    // Basic information
+    birthday: { type: Date, default: null },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other', 'Prefer not to say', null],
+      default: null,
+    },
+
+    // History
+    experiences: { type: [profileExperienceSchema], default: [] },
+    educations: { type: [profileEducationSchema], default: [] },
   },
   { timestamps: true },
 );

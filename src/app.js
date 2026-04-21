@@ -10,6 +10,7 @@ import swaggerSpec from '../swagger.js';
 import authRoutes from './routes/auth.routes.js';
 import cvRoutes from './routes/cv.routes.js';
 import aiRoutes from './routes/ai.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
 import passport from './config/passport.js';
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/auth', authRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'CVBuilder API is running' }));
