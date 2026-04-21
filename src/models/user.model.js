@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     password: { type: String }, // Not required for OAuth users
+    fullName: { type: String, trim: true },
+    // Deprecated: kept for backwards compatibility with existing records.
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
     refreshToken: String,

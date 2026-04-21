@@ -30,7 +30,7 @@ passport.use(
         if (!user) {
           user = await User.create({
             githubId: profile.id,
-            firstName: profile.displayName || profile.username,
+            fullName: profile.displayName || profile.username,
             email: email,
           });
         }
@@ -77,7 +77,7 @@ passport.use(
         if (!user) {
           user = await User.create({
             googleId: profile.id,
-            firstName: profile.displayName,
+            fullName: profile.displayName,
             email: email,
             // avatar: profile.photos?.[0]?.value,
           });

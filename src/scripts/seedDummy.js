@@ -63,8 +63,7 @@ const seedDummyData = async () => {
     const dummyUser = await User.findOneAndUpdate(
       { email: 'dummy@example.com' },
       {
-        firstName: 'Dummy',
-        lastName: 'User',
+        fullName: 'Dummy User',
         password: 'dummypassword123', // Just a dummy string
         role: 'user',
         aiUsageCount: 0,
