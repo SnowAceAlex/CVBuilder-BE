@@ -10,7 +10,13 @@ import jwt from 'jsonwebtoken';
 // @access  Public
 export const register = async (req, res, next) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, fullName } = req.body;
+
+    if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'fullName is required' });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -22,8 +28,7 @@ export const register = async (req, res, next) => {
     const user = await User.create({
       email,
       password,
-      firstName,
-      lastName,
+      fullName: fullName.trim(),
     });
 
     const accessToken = generateAccessToken(user._id);
@@ -45,8 +50,7 @@ export const register = async (req, res, next) => {
       user: {
         id: user._id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
       },
     });
   } catch (error) {
@@ -94,8 +98,7 @@ export const login = async (req, res, next) => {
       user: {
         id: user._id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        fullName: user.fullName,
       },
     });
   } catch (error) {

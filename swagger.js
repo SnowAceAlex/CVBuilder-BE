@@ -8,7 +8,10 @@ const options = {
       version: '1.0.0',
       description: 'API documentation for CVBuilder backend',
     },
-    servers: [{ url: 'http://localhost:5000' }],
+    servers: [
+      { url: 'http://localhost:5000' },
+      { url: 'https://cvbuilder-be-p5yh.onrender.com/' },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
