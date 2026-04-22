@@ -3,6 +3,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from '../utils/token.util.js';
+import { deleteAvatar as deleteFromCloudinary } from '../services/cloudinary.service.js';
 import { formatUserProfile } from '../utils/user.util.js';
 import jwt from 'jsonwebtoken';
 
@@ -556,6 +557,121 @@ export const deleteEducation = async (req, res, next) => {
       success: true,
       message: 'Education deleted successfully',
       user: formatUserProfile(user),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Attach an already-uploaded avatar URL to the User profile
+// @route   POST /api/auth/profile/avatar
+// @access  Private
+export const uploadProfileAvatar = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const { url, publicId } = req.body || {};
+
+    if (!url || typeof url !== 'string' || !url.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'url is required' });
+    }
+
+    const previousPublicId = user.avatarPublicId;
+    if (previousPublicId && previousPublicId !== publicId) {
+      await deleteFromCloudinary(previousPublicId).catch(() => {});
+    }
+
+    user.avatarUrl = url.trim();
+    user.avatarPublicId =
+      typeof publicId === 'string' && publicId.trim() ? publicId.trim() : undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar updated successfully',
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete avatar image
+// @route   DELETE /api/auth/profile/avatar
+// @access  Private
+export const deleteProfileAvatar = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    if (!user.avatarPublicId) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'No avatar to delete' });
+    }
+
+    await deleteFromCloudinary(user.avatarPublicId);
+
+    user.avatarUrl = undefined;
+    user.avatarPublicId = undefined;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar deleted successfully',
+      user: formatUserProfile(user),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Change user password
+// @route   PUT /api/auth/password
+// @access  Private
+export const changePassword = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide both currentPassword and newPassword',
+      });
+    }
+
+    if (!(await user.matchPassword(currentPassword))) {
+      return res.status(401).json({
+        success: false,
+        message: 'Incorrect current password',
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password changed successfully',
     });
   } catch (error) {
     next(error);

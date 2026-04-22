@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema(
     jobTitle: { type: String, trim: true },
     summary: { type: String, trim: true },
     website: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true, default: null },
+    avatarPublicId: { type: String, trim: true, default: null },
 
     // Basic information
     birthday: { type: Date, default: null },

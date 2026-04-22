@@ -16,9 +16,27 @@ import {
   addEducation,
   updateEducation,
   deleteEducation,
+  uploadProfileAvatar,
+  deleteProfileAvatar,
+  changePassword,
 } from '../controllers/auth.controller.js';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Auth
+ *     description: Authentication and user management
+ *   - name: Profile
+ *     description: User profile management
+ *   - name: Profile Avatar
+ *     description: User Profile Avatar image upload and management
+ *   - name: Educations
+ *     description: User Educations section
+ *   - name: Experiences
+ *     description: User Experiences section
+ */
 
 /**
  * @swagger
@@ -390,6 +408,90 @@ router.post('/profile/educations', protect, addEducation);
  */
 router.put('/profile/educations/:id', protect, updateEducation);
 router.delete('/profile/educations/:id', protect, deleteEducation);
+
+/**
+ * @swagger
+ * /api/auth/profile/avatar:
+ *   post:
+ *     summary: Attach an already-uploaded avatar URL to the User profile
+ *     tags: [Profile Avatar]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - url
+ *             properties:
+ *               url:
+ *                 type: string
+ *                 example: https://res.cloudinary.com/...
+ *               publicId:
+ *                 type: string
+ *                 example: cv-builder/avatars/...
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *   delete:
+ *     summary: Delete avatar from User profile
+ *     tags: [Profile Avatar]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Avatar deleted successfully
+ *       400:
+ *         description: No avatar to delete
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.post('/profile/avatar', protect, uploadProfileAvatar);
+router.delete('/profile/avatar', protect, deleteProfileAvatar);
+
+/**
+ * @swagger
+ * /api/auth/password:
+ *   put:
+ *     summary: Change current user's password
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 format: password
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessMessage'
+ *       400:
+ *         description: Missing fields
+ *       401:
+ *         description: Incorrect current password or unauthorized
+ */
+router.put('/password', protect, changePassword);
 
 // OAuth Placeholders
 /**
