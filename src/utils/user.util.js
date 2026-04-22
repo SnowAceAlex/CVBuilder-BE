@@ -43,6 +43,8 @@ export const formatUserProfile = (userDoc) => {
     jobTitle: formatScalar(user.jobTitle),
     summary: formatScalar(user.summary),
     website: formatScalar(user.website),
+    avatarUrl: formatScalar(user.avatarUrl),
+    avatarPublicId: formatScalar(user.avatarPublicId),
     birthday: formatDate(user.birthday),
     gender: formatScalar(user.gender),
     experiences: Array.isArray(user.experiences)

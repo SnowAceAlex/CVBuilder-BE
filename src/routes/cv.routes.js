@@ -58,7 +58,7 @@ const router = express.Router();
  *     description: Core CV management (CRUD)
  *   - name: Personal Info
  *     description: CV Personal Information section
- *   - name: Avatar
+ *   - name: CV Avatar
  *     description: CV Avatar image upload and management
  *   - name: Educations
  *     description: CV Educations section
@@ -1414,7 +1414,7 @@ router.put(
  * /api/cv/{id}/avatar:
  *   post:
  *     summary: Attach an uploaded avatar URL to the CV
- *     tags: [Avatar]
+ *     tags: [CV Avatar]
  *     description: |
  *       Saves an already-uploaded avatar URL to `cv.personalInfo`. The file itself
  *       must be uploaded first via `POST /api/upload/avatar`, which returns
@@ -1469,7 +1469,7 @@ router.post('/:id/avatar', protect, uploadCVAvatar);
  * /api/cv/{id}/avatar:
  *   delete:
  *     summary: Delete avatar image
- *     tags: [Avatar]
+ *     tags: [CV Avatar]
  *     security:
  *       - bearerAuth: []
  *     parameters:
