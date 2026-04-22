@@ -94,20 +94,10 @@ export const updateCV = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'CV not found' });
     }
 
-    if (
-      req.body.templateId !== undefined &&
-      req.body.templateId.toString() !== cv.templateId.toString()
-    ) {
-      return res.status(400).json({
-        success: false,
-        message:
-          'Template cannot be changed for an existing CV. Please create a new CV with the desired template.',
-      });
-    }
-
     // Update only the fields provided in the request body
     const allowedFields = [
       'cvTitle',
+      'templateId',
       'status',
       'personalInfo',
       'educations',
@@ -152,7 +142,7 @@ export const deleteCV = async (req, res, next) => {
     // Clean up Cloudinary avatar if present
     if (cv.personalInfo?.avatarPublicId) {
       await deleteFromCloudinary(cv.personalInfo.avatarPublicId).catch(
-        () => { },
+        () => {},
       );
     }
 
@@ -680,13 +670,15 @@ export const uploadCVAvatar = async (req, res, next) => {
     // Clean up the previous Cloudinary asset (if any) before swapping to the new one.
     const previousPublicId = cv.personalInfo?.avatarPublicId;
     if (previousPublicId && previousPublicId !== publicId) {
-      await deleteFromCloudinary(previousPublicId).catch(() => { });
+      await deleteFromCloudinary(previousPublicId).catch(() => {});
     }
 
     if (!cv.personalInfo) cv.personalInfo = {};
     cv.personalInfo.avatarUrl = url.trim();
     cv.personalInfo.avatarPublicId =
-      typeof publicId === 'string' && publicId.trim() ? publicId.trim() : undefined;
+      typeof publicId === 'string' && publicId.trim()
+        ? publicId.trim()
+        : undefined;
     await cv.save();
 
     res.status(200).json({ success: true, data: cv.personalInfo });
