@@ -283,7 +283,12 @@ router.put('/profile', protect, validate(updateProfileSchema), updateProfile);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/experiences', protect, validate(addExperienceSchema), addExperience);
+router.post(
+  '/profile/experiences',
+  protect,
+  validate(addExperienceSchema),
+  addExperience,
+);
 
 /**
  * @swagger
@@ -336,8 +341,19 @@ router.post('/profile/experiences', protect, validate(addExperienceSchema), addE
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.put('/profile/experiences/:id', protect, validateParams(mongoIdParamSchema), validate(updateExperienceSchema), updateExperience);
-router.delete('/profile/experiences/:id', protect, validateParams(mongoIdParamSchema), deleteExperience);
+router.put(
+  '/profile/experiences/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  validate(updateExperienceSchema),
+  updateExperience,
+);
+router.delete(
+  '/profile/experiences/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  deleteExperience,
+);
 
 /**
  * @swagger
@@ -367,7 +383,12 @@ router.delete('/profile/experiences/:id', protect, validateParams(mongoIdParamSc
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/educations', protect, validate(addEducationSchema), addEducation);
+router.post(
+  '/profile/educations',
+  protect,
+  validate(addEducationSchema),
+  addEducation,
+);
 
 /**
  * @swagger
@@ -420,8 +441,19 @@ router.post('/profile/educations', protect, validate(addEducationSchema), addEdu
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.put('/profile/educations/:id', protect, validateParams(mongoIdParamSchema), validate(updateEducationSchema), updateEducation);
-router.delete('/profile/educations/:id', protect, validateParams(mongoIdParamSchema), deleteEducation);
+router.put(
+  '/profile/educations/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  validate(updateEducationSchema),
+  updateEducation,
+);
+router.delete(
+  '/profile/educations/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  deleteEducation,
+);
 
 /**
  * @swagger
@@ -466,7 +498,12 @@ router.delete('/profile/educations/:id', protect, validateParams(mongoIdParamSch
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/avatar', protect, validate(uploadAvatarSchema), uploadProfileAvatar);
+router.post(
+  '/profile/avatar',
+  protect,
+  validate(uploadAvatarSchema),
+  uploadProfileAvatar,
+);
 router.delete('/profile/avatar', protect, deleteProfileAvatar);
 
 /**
@@ -505,7 +542,12 @@ router.delete('/profile/avatar', protect, deleteProfileAvatar);
  *       401:
  *         description: Incorrect current password or unauthorized
  */
-router.put('/password', protect, validate(changePasswordSchema), changePassword);
+router.put(
+  '/password',
+  protect,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 // OAuth Placeholders
 /**

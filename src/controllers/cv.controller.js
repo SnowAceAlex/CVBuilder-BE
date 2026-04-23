@@ -152,7 +152,7 @@ export const deleteCV = async (req, res, next) => {
     // Clean up Cloudinary avatar if present
     if (cv.personalInfo?.avatarPublicId) {
       await deleteFromCloudinary(cv.personalInfo.avatarPublicId).catch(
-        () => { },
+        () => {},
       );
     }
 
@@ -680,13 +680,15 @@ export const uploadCVAvatar = async (req, res, next) => {
     // Clean up the previous Cloudinary asset (if any) before swapping to the new one.
     const previousPublicId = cv.personalInfo?.avatarPublicId;
     if (previousPublicId && previousPublicId !== publicId) {
-      await deleteFromCloudinary(previousPublicId).catch(() => { });
+      await deleteFromCloudinary(previousPublicId).catch(() => {});
     }
 
     if (!cv.personalInfo) cv.personalInfo = {};
     cv.personalInfo.avatarUrl = url.trim();
     cv.personalInfo.avatarPublicId =
-      typeof publicId === 'string' && publicId.trim() ? publicId.trim() : undefined;
+      typeof publicId === 'string' && publicId.trim()
+        ? publicId.trim()
+        : undefined;
     await cv.save();
 
     res.status(200).json({ success: true, data: cv.personalInfo });

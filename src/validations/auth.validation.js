@@ -53,11 +53,31 @@ export const changePasswordSchema = z.object({
 
 export const updateProfileSchema = z
   .object({
-    fullName: z.string().trim().min(1, 'Full name cannot be empty').max(100).optional(),
+    fullName: z
+      .string()
+      .trim()
+      .min(1, 'Full name cannot be empty')
+      .max(100)
+      .optional(),
     phone: z.string().trim().max(14, 'Phone is too long').optional().nullable(),
-    address: z.string().trim().max(200, 'Address is too long').optional().nullable(),
-    jobTitle: z.string().trim().max(100, 'Job title is too long').optional().nullable(),
-    summary: z.string().trim().max(2000, 'Summary is too long').optional().nullable(),
+    address: z
+      .string()
+      .trim()
+      .max(200, 'Address is too long')
+      .optional()
+      .nullable(),
+    jobTitle: z
+      .string()
+      .trim()
+      .max(100, 'Job title is too long')
+      .optional()
+      .nullable(),
+    summary: z
+      .string()
+      .trim()
+      .max(2000, 'Summary is too long')
+      .optional()
+      .nullable(),
     website: z
       .string()
       .trim()

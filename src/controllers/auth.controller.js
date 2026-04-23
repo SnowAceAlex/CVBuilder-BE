@@ -20,7 +20,10 @@ const parseOptionalDate = (value, fieldName) => {
   return date;
 };
 
-const buildExperienceItem = (item, { partial = false, prefix = 'experience' } = {}) => {
+const buildExperienceItem = (
+  item,
+  { partial = false, prefix = 'experience' } = {},
+) => {
   if (!item || typeof item !== 'object') {
     const err = new Error(`${prefix} body must be an object`);
     err.status = 400;
@@ -67,7 +70,10 @@ const buildExperienceItem = (item, { partial = false, prefix = 'experience' } = 
   return result;
 };
 
-const buildEducationItem = (item, { partial = false, prefix = 'education' } = {}) => {
+const buildEducationItem = (
+  item,
+  { partial = false, prefix = 'education' } = {},
+) => {
   if (!item || typeof item !== 'object') {
     const err = new Error(`${prefix} body must be an object`);
     err.status = 400;
@@ -303,7 +309,8 @@ export const updateProfile = async (req, res, next) => {
     }
 
     if (phone !== undefined)
-      user.phone = phone === null || phone === '' ? undefined : String(phone).trim();
+      user.phone =
+        phone === null || phone === '' ? undefined : String(phone).trim();
     if (address !== undefined)
       user.address =
         address === null || address === '' ? undefined : String(address).trim();
@@ -345,9 +352,7 @@ export const updateProfile = async (req, res, next) => {
     });
   } catch (error) {
     if (error.status === 400) {
-      return res
-        .status(400)
-        .json({ success: false, message: error.message });
+      return res.status(400).json({ success: false, message: error.message });
     }
     next(error);
   }
@@ -590,7 +595,9 @@ export const uploadProfileAvatar = async (req, res, next) => {
 
     user.avatarUrl = url.trim();
     user.avatarPublicId =
-      typeof publicId === 'string' && publicId.trim() ? publicId.trim() : undefined;
+      typeof publicId === 'string' && publicId.trim()
+        ? publicId.trim()
+        : undefined;
 
     await user.save();
 
