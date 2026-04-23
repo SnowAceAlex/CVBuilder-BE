@@ -20,6 +20,20 @@ import {
   deleteProfileAvatar,
   changePassword,
 } from '../controllers/auth.controller.js';
+import {
+  validate,
+  validateParams,
+  registerSchema,
+  loginSchema,
+  changePasswordSchema,
+  updateProfileSchema,
+  addExperienceSchema,
+  updateExperienceSchema,
+  addEducationSchema,
+  updateEducationSchema,
+  uploadAvatarSchema,
+  mongoIdParamSchema,
+} from '../validations/auth.validation.js';
 
 const router = express.Router();
 
@@ -80,7 +94,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/register', register);
+router.post('/register', validate(registerSchema), register);
 
 /**
  * @swagger
@@ -129,7 +143,7 @@ router.post('/register', register);
  *               success: false
  *               message: Invalid credentials
  */
-router.post('/login', login);
+router.post('/login', validate(loginSchema), login);
 
 /**
  * @swagger
@@ -239,7 +253,7 @@ router.post('/logout', logout);
  *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/profile', protect, getProfile);
-router.put('/profile', protect, updateProfile);
+router.put('/profile', protect, validate(updateProfileSchema), updateProfile);
 
 /**
  * @swagger
@@ -269,7 +283,12 @@ router.put('/profile', protect, updateProfile);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/experiences', protect, addExperience);
+router.post(
+  '/profile/experiences',
+  protect,
+  validate(addExperienceSchema),
+  addExperience,
+);
 
 /**
  * @swagger
@@ -322,8 +341,19 @@ router.post('/profile/experiences', protect, addExperience);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.put('/profile/experiences/:id', protect, updateExperience);
-router.delete('/profile/experiences/:id', protect, deleteExperience);
+router.put(
+  '/profile/experiences/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  validate(updateExperienceSchema),
+  updateExperience,
+);
+router.delete(
+  '/profile/experiences/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  deleteExperience,
+);
 
 /**
  * @swagger
@@ -353,7 +383,12 @@ router.delete('/profile/experiences/:id', protect, deleteExperience);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/educations', protect, addEducation);
+router.post(
+  '/profile/educations',
+  protect,
+  validate(addEducationSchema),
+  addEducation,
+);
 
 /**
  * @swagger
@@ -406,8 +441,19 @@ router.post('/profile/educations', protect, addEducation);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.put('/profile/educations/:id', protect, updateEducation);
-router.delete('/profile/educations/:id', protect, deleteEducation);
+router.put(
+  '/profile/educations/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  validate(updateEducationSchema),
+  updateEducation,
+);
+router.delete(
+  '/profile/educations/:id',
+  protect,
+  validateParams(mongoIdParamSchema),
+  deleteEducation,
+);
 
 /**
  * @swagger
@@ -452,7 +498,12 @@ router.delete('/profile/educations/:id', protect, deleteEducation);
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.post('/profile/avatar', protect, uploadProfileAvatar);
+router.post(
+  '/profile/avatar',
+  protect,
+  validate(uploadAvatarSchema),
+  uploadProfileAvatar,
+);
 router.delete('/profile/avatar', protect, deleteProfileAvatar);
 
 /**
@@ -491,7 +542,12 @@ router.delete('/profile/avatar', protect, deleteProfileAvatar);
  *       401:
  *         description: Incorrect current password or unauthorized
  */
-router.put('/password', protect, changePassword);
+router.put(
+  '/password',
+  protect,
+  validate(changePasswordSchema),
+  changePassword,
+);
 
 // OAuth Placeholders
 /**
